@@ -1,0 +1,159 @@
+
+Data set description:
+
+It is reckognized that for the drone racing project there is a need for logged data for the purpose of state estimation computer vision and model identification. Therefore a standard data set is created by internally logging all relevant sensor data on the bebob drone together with timestampted snapshots of the front camera.
+
+The tests concist of three trajectories which are flown at high medium and low battery levels. Each flight starts from one of two positions on the ground. Note that the drone is manually controlled. 
+Logging is performed at roughly 512hz and snapshots are taken at 5hz.
+
+Trajectories are as follows
+-Straight flight through the gate at medium speed.
+-Straight flight throught the gate at high speed.
+-Curved flight through the gate at medium speed, starting from a position on the side of the gate (position 2).
+ 
+Gate position:
+The position reference frame is initialised zero on the starting position of the drone. Since there are two starting positions, the position of the gate relative to the current starting position is different for each starting position.
+
+NED
+positive x forward
+positive y to the right
+positive z downward
+
+Position of the gates at different starting positions in local NED frame
+
+Starting position 1(in front of gate)
+Gate position:
+x 4.2m
+y 0.8m
+z 1.4m
+psi gate 2 deg
+
+Position 2 (on side of gate side)
+Gate position
+x 2.9m
+y -1.66m
+z 1.4m
+
+LOG FILE DESCRIPTION
+The sensor data is logged in .csv files with each column containing a different parameter. Below an indication about which column number belongs to which parameter is given, together with a short description of units and sign conversions.
+
+Column  //  Paramater  // unit // Description
+
+ 1 // counter // n // sample number
+ 2 // time_stamp // sec // Time at which measurements where taken
+ 3 // imu.gyro.p, // (mult with 0.0139882 for deg/sec) // body rates according to right hand rule
+ 4 // imu.gyro.q, // (mult with 0.0139882 for deg/sec) //
+ 5 // imu.gyro.r, // (mult with 0.0139882 for deg/sec) //
+ 6 // imu.accel.x, // (mult with 0.0009766 for m/s²) // Accelerations right hand rule (times -1 for gravity vector) x forward
+ 7 // imu.accel.y, // (mult with 0.0009766 for m/s²) // y to the right
+ 8 // imu.accel.z, // (mult with 0.0009766 for m/s²) // z down (-9.8m/s2 when on flat surface)
+ 9 // imu.mag.x, // not tested are we using it at all?
+ 10 // imu.mag.y, //
+ 11 // imu.mag.z, // 
+ 12 // phi, // rad // positive roll to the right
+ 13 // theta, // rad //negative pitch forward
+ 14 // psi, // rad // negative counter clockwise  
+ 15 // PositionNed_f()->x,// m // position NED frame
+ 16 // PositionNed_f()->y,// m //
+ 17 // PositionNed_f()->z,// m //
+ 18 // SpeedNed_f()->x,// m/s // speed in NED frame
+ 19 // SpeedNed_f()->y,// m/s // 
+ 20 // SpeedNed_f()->z,// m/s //
+ 21 // stabilization_cmd[COMMAND_THRUST],//unit unknown// internal paparazzi thrust command
+ 22 // stab_att_sp_euler.phi, // rad // phi set point
+ 23 // stab_att_sp_euler.theta, // rad // theta set point
+ 24 // stab_att_sp_euler.psi, // rad // psi set point  
+ 25 // electrical.vsupply, // deci volt // voltage of battery
+ 26 // electrical.current, // milli amps //current 
+ 27 // actuators_bebop.rpm_ref[0],// rpm // reference of left front motor (lf) 
+ 28 // actuators_bebop.rpm_ref[1],//rf
+ 29 // actuators_bebop.rpm_ref[2],//rb
+ 30 // actuators_bebop.rpm_ref[3],//lb
+ 31 // actuators_bebop.rpm_obs[0],// rpm // observed rpm on left front motor (lf)
+ 32 // actuators_bebop.rpm_obs[1],//rf
+ 33 // actuators_bebop.rpm_obs[2],//rb
+ 34 // actuators_bebop.rpm_obs[3],//lb
+ 35 // shots // n // number corresponding to the filename of the jpeg snapshot
+
+
+DATA SET DESCRIPTION
+Some data sets have different offset_x values because it was recognised that the front camera cutout was to low in forward flight. Recalibration should be straightforward using the optitrack groundtruth. 
+
+OLD OFFSET: <!--define name="MT9F002_INITIAL_OFFSET_X" value="2048"/--> 
+Data set 3:
+Straight flight
+full bat
+medium speed
+
+Data set 4:
+Straight flight
+med bat 11.6
+high speed
+
+Data set 5:
+Curve flight
+med bat 11.5
+medium speed
+
+NEW OFFSET: <define name="MT9F002_INITIAL_OFFSET_X" value="2368"/>
+
+Data set 6
+Straight flight
+med bat 11.4
+medium speed
+
+NEW OFFSET: <define name="MT9F002_INITIAL_OFFSET_X" value="2288"/>
+---------------------
+Data set 7:
+Straight flight
+low bat 11.3
+medium speed
+
+Data set 8:
+Straigh flight
+low bat 11.2
+high speed
+
+Data set 9:
+Curve flight
+low bat 11.2
+med speed
+-------------------
+Data set 10:
+Straight flight(wobly)
+full bat 12.3
+high speed
+
+Data set 11:
+Straigh flight
+full bat 12.0
+med speed
+
+Data set 12:
+Straight flight
+full bat 12.0
+High speed
+
+Data set 13:
+Curved flight
+full bat 11.9
+med speed
+-----------------
+
+Data set 14:
+Straight flight
+med bat 11.7
+medium speed
+
+Data set 15:
+Straigh flight
+med bat 11.6
+high speed
+
+Data set 16:
+Curved flight
+med bat 11.5
+med speed
+
+
+
