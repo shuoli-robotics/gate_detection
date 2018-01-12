@@ -1,80 +1,55 @@
 function [gate_corners_x, gate_corners_y] = run_detection_corner_refine_img(dir_name, frame_nr)
 
-graphics = true;%true;%false;
 
-% image_names = makeListOfFiles(dir_name, 'jpg');
-% image_names = sort_nat(image_names);
-% n_images = length(image_names);
-
-% whether to threshold the color response:
-THRESHOLD = true;
-CUT_OFF_PROPELLORS = false;
-% the detection method (should be true in this file)
 SUB_SAMPLING_SNAKE = true;
 
-% filter images
-
-% read the image in RGB
-%     RGB = imread([dir_name '\' image_names{im}]);
-RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
+if (strcmp(dir_name, 'Cyberzoo') || strcmp(dir_name, 'Basement'))
+    RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
+elseif (strcmp(dir_name, 'Korea'))
+    RGB = imread([dir_name '/' 'image_' num2str(frame_nr) '.jpg']);
+elseif (strcmp(dir_name, 'main_hall'))
+    RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
+end
 RGB = double(RGB) ./ 255;
 
-%rotate anyway
-RGB = imrotate(RGB, 90);
 
 % potentially resize the image:
-if(strcmp(dir_name, 'images') || strcmp(dir_name, 'ventilator_images'))
+if (strcmp(dir_name,'Cyberzoo')||strcmp(dir_name,'Basement'))
     RGB = imrotate(RGB, 90);
 end
-if(strcmp(dir_name, 'phone_images') || strcmp(dir_name, 'real_arena'))
+if(strcmp(dir_name, 'Korea'))
     RGB = imresize(RGB, 0.25);
 end
 
-if(graphics)
-    % show the image:
-    figure(); 
-    imshow(RGB);
-    title('RGB image');
-    
-    figure()
-    imagesc(RGB)
-    axis([90 210 20 130])
+% figure(1)
+% imshow(RGB);
+
+if (strcmp(dir_name,'Cyberzoo'))
+    [Response,maskedRGBImage] = createMask_cyberzoo(RGB);
+elseif (strcmp(dir_name,'main_hall'))
+    [Response,maskedRGBImage] = createMask_cyberzoo(RGB);
+elseif (strcmp(dir_name,'Korea'))
+    [Response,maskedRGBImage] = createMask_Korea(RGB);
+elseif (strcmp(dir_name,'Basement'))
+      [Response,maskedRGBImage] = createMask_basement(RGB);
 end
 
-% we filter in the hsv domain:
-HSV = rgb2hsv(RGB);
-H_ref = 0;%0.10;%0;
-std_var = 0.10;%0 %0.10
-S_thresh = 0.2;%0.4
-Response = filter_HSV(HSV, H_ref, std_var, S_thresh);
+% YCV = rgb2ycbcr(RGB);
+% cr_min = 140.0 / 255.0;
+% dy_min = 0.05;
+% Response = filter_YCV(YCV, cr_min, dy_min);
 
-% response thresholding:
-if(THRESHOLD)
-    std_factor = 2; % 1.5;
-    mR = mean(Response(:));
-    stdR = std(Response(:));
-    Response = (Response > mR + std_factor*stdR) .* Response;
-end
 
-if(CUT_OFF_PROPELLORS)
-    % cut off propellors:
-    Response(:, 1:100) = 0;
-    Response(:, end-100:end) = 0;
-end
+figure(1);
+imagesc(Response);
+hold on;
+title('show all snake gate');
 
-if(graphics)
-    figure();
-    imagesc(Response);
-    axis([90 210 20 130])
-    hold on;
-    %title('Response Hue filter');
-end
 
 
 if(SUB_SAMPLING_SNAKE)
 
     SQUARE = 1;
-    CIRCLE = 2;
     shape = SQUARE;
 
     [x,y,s,n_gates] = sub_sampling_snake(Response); 
@@ -96,25 +71,14 @@ if(SUB_SAMPLING_SNAKE)
     Q3 = [x+s; y+s];
     Q4 = [x-s; y+s];
     
-    if(graphics)
-    figure();
-    imagesc(Response);
-    axis([90 210 20 130])
-    hold on;
 
+    figure(1);
     color = [0 1 0];
     plot([Q1(1) Q2(1)], [Q1(2), Q2(2)], 'Color', color, 'LineWidth', 5);
     plot([Q2(1) Q3(1)], [Q2(2), Q3(2)], 'Color', color, 'LineWidth', 5);
     plot([Q3(1) Q4(1)], [Q3(2), Q4(2)], 'Color', color, 'LineWidth', 5);
     plot([Q4(1) Q1(1)], [Q4(2), Q1(2)], 'Color', color, 'LineWidth', 5);
-    end
-    
-    if(graphics)
-    figure();
-    imagesc(Response);
-    axis([90 210 20 130])
-    hold on;
-    end
+
     %sub corners
     Q_r1 = refine_corner(Q1,s,Response,0.4);
     Q_r2 = refine_corner(Q2,s,Response,0.4);
@@ -125,20 +89,16 @@ if(SUB_SAMPLING_SNAKE)
     gate_corners_y = [Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
     
     
-    if(graphics)
-    figure();
-    imagesc(Response);
-    axis([90 210 20 130])
+
+    figure(1);
     hold on;
     color = [1 0 0];
     plot([Q_r1(1) Q_r2(1)], [Q_r1(2), Q_r2(2)], 'Color', color, 'LineWidth', 5);
     plot([Q_r2(1) Q_r3(1)], [Q_r2(2), Q_r3(2)], 'Color', color, 'LineWidth', 5);
     plot([Q_r3(1) Q_r4(1)], [Q_r3(2), Q_r4(2)], 'Color', color, 'LineWidth', 5);
     plot([Q_r4(1) Q_r1(1)], [Q_r4(2), Q_r1(2)], 'Color', color, 'LineWidth', 5);
-    end
-
-    n_gates
-
+    
+    close all
 end
 
 if size(x)>0
@@ -254,3 +214,130 @@ H = H + 1000 * S_Filter; % will get 0 probability
 
 % get the response:
 Response = normpdf(H, H_ref, H_std_var);
+
+
+function Response = filter_YCV(YCV, cr_min, dy_min)
+[DX, DY] = gradient(YCV(:,:,3));
+DY = abs(DY);
+DX = abs(DX);
+Response = DY > dy_min | YCV(:,:,3) > cr_min;
+
+function [BW,maskedRGBImage] = createMask_cyberzoo(RGB)
+%createMask  Threshold RGB image using auto-generated code from colorThresholder app.
+%  [BW,MASKEDRGBIMAGE] = createMask(RGB) thresholds image RGB using
+%  auto-generated code from the colorThresholder App. The colorspace and
+%  minimum/maximum values for each channel of the colorspace were set in the
+%  App and result in a binary mask BW and a composite image maskedRGBImage,
+%  which shows the original RGB image values under the mask BW.
+
+% Auto-generated by colorThresholder app on 10-Jan-2018
+%------------------------------------------------------
+
+
+% Convert RGB image to chosen color space
+I = rgb2hsv(RGB);
+
+% Define thresholds for channel 1 based on histogram settings
+channel1Min = 0.863;
+channel1Max = 0.114;
+
+% Define thresholds for channel 2 based on histogram settings
+channel2Min = 0.123;
+channel2Max = 0.905;
+
+% Define thresholds for channel 3 based on histogram settings
+channel3Min = 0.402;
+channel3Max = 0.793;
+% Create mask based on chosen histogram thresholds
+sliderBW = ( (I(:,:,1) >= channel1Min) | (I(:,:,1) <= channel1Max) ) & ...
+    (I(:,:,2) >= channel2Min ) & (I(:,:,2) <= channel2Max) & ...
+    (I(:,:,3) >= channel3Min ) & (I(:,:,3) <= channel3Max);
+BW = sliderBW;
+
+% Initialize output masked image based on input image.
+maskedRGBImage = RGB;
+
+% Set background pixels where BW is false to zero.
+maskedRGBImage(repmat(~BW,[1 1 3])) = 0;
+
+
+function [BW,maskedRGBImage] = createMask_Korea(RGB)
+%createMask  Threshold RGB image using auto-generated code from colorThresholder app.
+%  [BW,MASKEDRGBIMAGE] = createMask(RGB) thresholds image RGB using
+%  auto-generated code from the colorThresholder App. The colorspace and
+%  minimum/maximum values for each channel of the colorspace were set in the
+%  App and result in a binary mask BW and a composite image maskedRGBImage,
+%  which shows the original RGB image values under the mask BW.
+
+% Auto-generated by colorThresholder app on 10-Jan-2018
+%------------------------------------------------------
+
+
+% Convert RGB image to chosen color space
+I = rgb2hsv(RGB);
+
+% Define thresholds for channel 1 based on histogram settings
+channel1Min = 0.044;
+channel1Max = 0.085;
+
+% Define thresholds for channel 2 based on histogram settings
+channel2Min = 0.765;
+channel2Max = 0.993;
+
+% Define thresholds for channel 3 based on histogram settings
+channel3Min = 0.621;
+channel3Max = 0.875;
+
+% Create mask based on chosen histogram thresholds
+sliderBW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
+    (I(:,:,2) >= channel2Min ) & (I(:,:,2) <= channel2Max) & ...
+    (I(:,:,3) >= channel3Min ) & (I(:,:,3) <= channel3Max);
+BW = sliderBW;
+
+% Initialize output masked image based on input image.
+maskedRGBImage = RGB;
+
+% Set background pixels where BW is false to zero.
+maskedRGBImage(repmat(~BW,[1 1 3])) = 0;
+
+function [BW,maskedRGBImage] = createMask_basement(RGB)
+%createMask  Threshold RGB image using auto-generated code from colorThresholder app.
+%  [BW,MASKEDRGBIMAGE] = createMask(RGB) thresholds image RGB using
+%  auto-generated code from the colorThresholder App. The colorspace and
+%  minimum/maximum values for each channel of the colorspace were set in the
+%  App and result in a binary mask BW and a composite image maskedRGBImage,
+%  which shows the original RGB image values under the mask BW.
+
+% Auto-generated by colorThresholder app on 12-Jan-2018
+%------------------------------------------------------
+
+
+% Convert RGB image to chosen color space
+I = rgb2ycbcr(RGB);
+I = I.*255;
+% Define thresholds for channel 1 based on histogram settings
+channel1Min = 0.000;
+channel1Max = 255.000;
+
+% Define thresholds for channel 2 based on histogram settings
+channel2Min = 0.000;
+channel2Max = 255.000;
+
+% Define thresholds for channel 3 based on histogram settings
+channel3Min = 133.000;
+channel3Max = 255.000;
+
+% Create mask based on chosen histogram thresholds
+sliderBW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
+    (I(:,:,2) >= channel2Min ) & (I(:,:,2) <= channel2Max) & ...
+    (I(:,:,3) >= channel3Min ) & (I(:,:,3) <= channel3Max);
+BW = sliderBW;
+
+% Initialize output masked image based on input image.
+maskedRGBImage = RGB;
+
+% Set background pixels where BW is false to zero.
+maskedRGBImage(repmat(~BW,[1 1 3])) = 0;
+
+
+

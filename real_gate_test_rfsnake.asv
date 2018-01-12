@@ -1,0 +1,14 @@
+close all;
+clear all
+
+data_set = 'Korea';
+% 'Cyberzoo'
+% main_hall
+
+
+
+for c = 1:40
+ [image_points_x,image_points_y] = run_detection_corner_refine_img('data_set', c);
+%[image_points_x,image_points_y] = run_detection_corner_refine_img('real_arena',c);
+
+end
