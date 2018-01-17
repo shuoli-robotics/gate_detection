@@ -33,7 +33,6 @@ else
     Q2 = [x+r; y-r];
     Q3 = [x+r; y+r];
     Q4 = [x-r; y+r];
-    r
     
     [s_cf, p] = check_color_fitness_segment(Q1, Q2, Response);
     cf = cf + s_cf;
