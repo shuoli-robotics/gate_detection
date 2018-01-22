@@ -1,4 +1,4 @@
-function [corners] = run_detection_corner_refine_img(dir_name, frame_nr)
+function [corners] = run_detection_corner_refine_img(dir_name, frame_nr,p)
 
 
 SUB_SAMPLING_SNAKE = true;
@@ -20,7 +20,7 @@ hold on
 
 figure(1);
 imagesc(Response);
-title(frame_nr);
+title(p);
 hold on;
 
 if(SUB_SAMPLING_SNAKE)
@@ -31,7 +31,7 @@ if(SUB_SAMPLING_SNAKE)
     [x,y,s,n_gates] = sub_sampling_snake(Response); 
     if n_gates < 1
         corners = zeros(1,9);
-        waitforbuttonpress;
+        %waitforbuttonpress;
         close all
         return;
     end
@@ -75,7 +75,7 @@ if(SUB_SAMPLING_SNAKE)
     plot([Q_r3(1) Q_r4(1)], [Q_r3(2), Q_r4(2)], 'Color', color, 'LineWidth', 5);
     plot([Q_r4(1) Q_r1(1)], [Q_r4(2), Q_r1(2)], 'Color', color, 'LineWidth', 5);
     corners = [1 Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
-    waitforbuttonpress;
+   % waitforbuttonpress;
     close all
 end
 
