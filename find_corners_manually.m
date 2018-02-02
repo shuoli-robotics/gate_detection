@@ -10,19 +10,17 @@ function [ GT ] = find_corners_manually( dir_name,n,m )
 GT = zeros(m-n+1,9);
 p = 1;
 for i = n:m
-    if (strcmp(dir_name, 'Cyberzoo') || strcmp(dir_name, 'Basement'))
-        file_name = [dir_name '/' 'img_' sprintf('%05d',i) '.jpg'];
-        if ~exist(file_name, 'file')
-           continue; 
-        end
-        RGB = imread(file_name);
-    end
     
-    if (strcmp(dir_name,'Cyberzoo')||strcmp(dir_name,'Basement'))
-        RGB = imrotate(RGB, 90);
+    file_name = [dir_name '/' 'img_' sprintf('%05d',i) '.jpg'];
+    if ~exist(file_name, 'file')
+        continue;
     end
+    RGB = imread(file_name);
+    RGB = imrotate(RGB, 90);
+   
     figure(1)
     imshow(RGB);
+    title(i);
     
     flag_gate = input('Is there a gate? 1:Yes 0:No'  );
     if flag_gate ~= 1
