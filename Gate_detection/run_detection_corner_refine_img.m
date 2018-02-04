@@ -2,7 +2,7 @@ function [corners] = run_detection_corner_refine_img(dir_name, frame_nr,p)
 
 
 SUB_SAMPLING_SNAKE = true;
-WAIT_FOR_CLICK = 1;
+WAIT_FOR_CLICK = 0;
 
 RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
 

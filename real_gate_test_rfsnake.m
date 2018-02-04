@@ -9,16 +9,16 @@ global channel3Min
 load('detection_manually_1_16');
 
 p = 1;
-for i = 15:30
+for i = 10:10
     i
     %check_accuracy_of_manually_detection(GT,dir_name,n,m)
     
     channel3Min = 120+(i-1);
     [detected_gate] = snake_gate_detection(dir_name);
-    %[corner_error_relative,center_error_relative] = check_max_error_of_automatic_detection(GT,detected_gate);
+    [corner_error_relative,center_error_relative] = check_max_error_of_automatic_detection(GT,detected_gate);
     
-    [TP,FN,FP,TN] = count_detection_result(GT,detected_gate);
-    ROC_data(p,:) = [TP/(TP+FN) FP/(FP+TN)];
+%     [TP,FN,FP,TN] = count_detection_result(GT,detected_gate);
+%     ROC_data(p,:) = [TP/(TP+FN) FP/(FP+TN)];
     p = p + 1;
 end
 figure(10)
