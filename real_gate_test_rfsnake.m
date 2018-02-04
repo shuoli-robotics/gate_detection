@@ -1,11 +1,11 @@
 close all;
 clear all
 
-dir_name = 'Basement';
+dir_name = 'pic_cyberzoo';
 
 global channel3Min
 
-% [ GT_gate ] = find_corners_manually( dir_name,1,1000 );
+ [ GT_gate ] = find_corners_manually( dir_name,0,1000 );
 load('detection_manually_1_16');
 
 p = 1;

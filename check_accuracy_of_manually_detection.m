@@ -2,7 +2,7 @@ function [] = check_accuracy_of_manually_detection(GT,dir_name,n,m)
 
 p = 1;
 
-for i = n:m
+for i = 0:m
     file_name = [dir_name '/' 'img_' sprintf('%05d',i) '.jpg'];
     if ~exist(file_name, 'file')
         continue;
