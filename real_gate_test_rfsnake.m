@@ -5,9 +5,9 @@ dir_name = 'pic_cyberzoo';
 
 global channel3Min
 
- [ GT_gate ] = find_corners_manually( dir_name,0,1000 );
-load('detection_manually_1_16');
-
+% [ GT_gate ] = find_corners_manually( dir_name,0,1000 );
+load('2018_2_2_ground_truth_gate_selection');
+check_accuracy_of_manually_detection(GT_gate,dir_name,0,1000);
 p = 1;
 for i = 15:30
     i
