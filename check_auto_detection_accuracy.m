@@ -3,9 +3,12 @@ function [Ture_Positive,False_Positive, False_Negative,True_Negative] = check_au
 % algorithm works. It print manually detection and SG detection on one
 % single image
 
+
+
 p = 1;
 THRESH = 0.15;
-WAIT_FOR_CLICK = 1;
+FIGURE = 0;
+WAIT_FOR_CLICK = 0;
 
 Ture_Positive = 0;
 True_Negative = 0;
@@ -20,9 +23,12 @@ for i = n:m
         frame_nr = i;
         RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
         RGB = imrotate(RGB, 90);
-        figure(1)
-        imshow(RGB);
-        hold on
+        
+        if FIGURE == 1
+            figure(1)
+            imshow(RGB);
+            hold on
+        end
         
         Q1_GT = [GT(p,2) GT(p,6)];
         Q2_GT = [GT(p,3) GT(p,7)];
@@ -43,44 +49,54 @@ for i = n:m
 
         if GT(p,1) == 1 && SG(p,1) == 1 && center_error_relative(p) < THRESH
             Ture_Positive = Ture_Positive + 1;
-            plot_square(GT(p,:),'r');
-            plot_square(SG(p,:),'g');
-            figure(1)
-            s1 = 'True-Positive';
-            s2 = num2str(center_error_relative(p));
-            ss = strcat(s1,s2);
-            title(ss);
+            if FIGURE == 1
+                plot_square(GT(p,:),'r');
+                plot_square(SG(p,:),'g');
+                figure(1)
+                s1 = 'True-Positive';
+                s2 = num2str(center_error_relative(p));
+                ss = strcat(s1,s2);
+                title(ss);
+            end
         elseif GT(p,1) == 1 && SG(p,1) == 1 && center_error_relative(p) > THRESH
-            False_Positive = False_Positive + 1;
-            plot_square(GT(p,:),'r');
-            plot_square(SG(p,:),'g');
-            figure(1)
-            s1 = 'False-Positive';
-            s2 = num2str(center_error_relative(p));
-            ss = strcat(s1,s2);
-            title(ss);
-        elseif GT(p,1) == 1 && SG(p,1) == 0
-            False_Positive = False_Positive + 1;
-            plot_square(GT(p,:),'r');
-            figure(1)
-             s1 = 'False-Positive';
-            s2 = num2str(center_error_relative(p));
-            ss = strcat(s1,s2);
-             title(ss);
-        elseif GT(p,1) == 0 && SG(p,1) == 1
             False_Negative = False_Negative + 1;
-            plot_square(SG(p,:),'g');
-            figure(1)
-            s1 = 'False-Negative';
-            s2 = num2str(center_error_relative(p));
-            ss = strcat(s1,s2);
-             title(ss);
+            if FIGURE == 1
+                plot_square(GT(p,:),'r');
+                plot_square(SG(p,:),'g');
+                figure(1)
+                s1 = 'False-Negative';
+                s2 = num2str(center_error_relative(p));
+                ss = strcat(s1,s2);
+                title(ss);
+            end
+        elseif GT(p,1) == 1 && SG(p,1) == 0
+            False_Negative = False_Negative + 1;
+            if FIGURE == 1
+                plot_square(GT(p,:),'r');
+                figure(1)
+                s1 = 'False-Negative';
+                s2 = num2str(center_error_relative(p));
+                ss = strcat(s1,s2);
+                title(ss);
+            end
+        elseif GT(p,1) == 0 && SG(p,1) == 1
+            False_Positive = False_Positive + 1;
+            if FIGURE == 1
+                plot_square(SG(p,:),'g');
+                figure(1)
+                s1 = 'False-Positive';
+                s2 = num2str(center_error_relative(p));
+                ss = strcat(s1,s2);
+                title(ss);
+            end
         else
             True_Negative = True_Negative + 1;
-            s1 = 'True-Negative';
-            s2 = num2str(center_error_relative(p));
-            ss = strcat(s1,s2);
-            title(ss);
+            if FIGURE == 1
+                s1 = 'True-Negative';
+                s2 = num2str(center_error_relative(p));
+                ss = strcat(s1,s2);
+                title(ss);
+            end
         end
         if WAIT_FOR_CLICK == 1
             waitforbuttonpress;
@@ -95,13 +111,17 @@ end
 
 
 function [] = plot_square(corner_coor,color)
-figure(1)
-Q1 = [corner_coor(2) corner_coor(6)];
-Q2 = [corner_coor(3) corner_coor(7)];
-Q3 = [corner_coor(4) corner_coor(8)];
-Q4 = [corner_coor(5) corner_coor(9)];
-plot([Q1(1) Q2(1)],[Q1(2) Q2(2)],color,'LineWidth',2);
-plot([Q2(1) Q3(1)],[Q2(2) Q3(2)],color,'LineWidth',2);
-plot([Q3(1) Q4(1)],[Q3(2) Q4(2)],color,'LineWidth',2);
-plot([Q4(1) Q1(1)],[Q4(2) Q1(2)],color,'LineWidth',2);
+global FIGURE
+
+if FIGURE == 1
+    figure(1)
+    Q1 = [corner_coor(2) corner_coor(6)];
+    Q2 = [corner_coor(3) corner_coor(7)];
+    Q3 = [corner_coor(4) corner_coor(8)];
+    Q4 = [corner_coor(5) corner_coor(9)];
+    plot([Q1(1) Q2(1)],[Q1(2) Q2(2)],color,'LineWidth',2);
+    plot([Q2(1) Q3(1)],[Q2(2) Q3(2)],color,'LineWidth',2);
+    plot([Q3(1) Q4(1)],[Q3(2) Q4(2)],color,'LineWidth',2);
+    plot([Q4(1) Q1(1)],[Q4(2) Q1(2)],color,'LineWidth',2);
+end
 end

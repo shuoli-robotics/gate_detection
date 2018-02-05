@@ -9,15 +9,18 @@ function [xs,ys,ss,n_gates] = sub_sampling_snake(Response)
 %    (b) left and right. If long enough test two hypotheses with color
 %    fitness.
 
+global sample_num FIGURE minimun_length
+
 STICK = false;
 SQUARE = 1;
 CIRCLE = 2;
 SHAPE = SQUARE;
-MAX_SAMPLES = 5000;
+MAX_SAMPLES = 5000; %5000
 W = size(Response,2);
 H = size(Response,1);
 xs = []; ys = []; ss = [];
-min_pixel_size = 25;
+% min_pixel_size = 25;
+min_pixel_size = minimun_length;
 min_fit = 0.45;
 graphics = true;%false;
 % if(graphics)
@@ -92,9 +95,12 @@ for i = 1:n_gates
     Q2 =  [xs(i)+ss(i) ys(i)+ss(i)];
     Q3 =  [xs(i)+ss(i) ys(i)-ss(i)];
     Q4 =  [xs(i)-ss(i) ys(i)-ss(i)];
-    figure(1)
-    plot([Q1(1) Q2(1)],[Q1(2) Q2(2)],'Color','r');
-    plot([Q2(1) Q3(1)],[Q2(2) Q3(2)],'Color','r');
-    plot([Q3(1) Q4(1)],[Q3(2) Q4(2)],'Color','r');
-    plot([Q4(1) Q1(1)],[Q4(2) Q1(2)],'Color','r');
+    
+    if FIGURE == 1
+        figure(1)
+        plot([Q1(1) Q2(1)],[Q1(2) Q2(2)],'Color','r');
+        plot([Q2(1) Q3(1)],[Q2(2) Q3(2)],'Color','r');
+        plot([Q3(1) Q4(1)],[Q3(2) Q4(2)],'Color','r');
+        plot([Q4(1) Q1(1)],[Q4(2) Q1(2)],'Color','r');
+    end
 end

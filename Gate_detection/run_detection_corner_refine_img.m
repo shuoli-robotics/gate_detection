@@ -1,6 +1,6 @@
 function [corners] = run_detection_corner_refine_img(dir_name, frame_nr,p)
 
-
+global FIGURE
 SUB_SAMPLING_SNAKE = true;
 WAIT_FOR_CLICK = 0;
 
@@ -9,21 +9,22 @@ RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
 RGB = double(RGB) ./ 255;
 RGB = imrotate(RGB, 90);
 
-
+if FIGURE == 1
 figure(1)
 imshow(RGB);
 hold on
+end
 
 
 [Response,maskedRGBImage] = createMask_basement(RGB);
 
 
-
-figure(1);
-imagesc(Response);
-title(p);
-hold on;
-
+if FIGURE == 1
+    figure(1);
+    imagesc(Response);
+    title(p);
+    hold on;
+end
 if(SUB_SAMPLING_SNAKE)
 
     SQUARE = 1;
@@ -58,11 +59,12 @@ if(SUB_SAMPLING_SNAKE)
 
 
     color = [0 1 0];
-    plot([Q1(1) Q2(1)], [Q1(2), Q2(2)], 'Color', color, 'LineWidth', 5);
-    plot([Q2(1) Q3(1)], [Q2(2), Q3(2)], 'Color', color, 'LineWidth', 5);
-    plot([Q3(1) Q4(1)], [Q3(2), Q4(2)], 'Color', color, 'LineWidth', 5);
-    plot([Q4(1) Q1(1)], [Q4(2), Q1(2)], 'Color', color, 'LineWidth', 5);
-
+    if FIGURE == 1
+        plot([Q1(1) Q2(1)], [Q1(2), Q2(2)], 'Color', color, 'LineWidth', 5);
+        plot([Q2(1) Q3(1)], [Q2(2), Q3(2)], 'Color', color, 'LineWidth', 5);
+        plot([Q3(1) Q4(1)], [Q3(2), Q4(2)], 'Color', color, 'LineWidth', 5);
+        plot([Q4(1) Q1(1)], [Q4(2), Q1(2)], 'Color', color, 'LineWidth', 5);
+    end
     %sub corners
     Q_r1 = refine_corner(Q1,s,Response,0.4);
     Q_r2 = refine_corner(Q2,s,Response,0.4);
@@ -73,10 +75,12 @@ if(SUB_SAMPLING_SNAKE)
 %     gate_corners_y = [Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
 
     color = [1 0 0];
-    plot([Q_r1(1) Q_r2(1)], [Q_r1(2), Q_r2(2)], 'Color', color, 'LineWidth', 5);
-    plot([Q_r2(1) Q_r3(1)], [Q_r2(2), Q_r3(2)], 'Color', color, 'LineWidth', 5);
-    plot([Q_r3(1) Q_r4(1)], [Q_r3(2), Q_r4(2)], 'Color', color, 'LineWidth', 5);
-    plot([Q_r4(1) Q_r1(1)], [Q_r4(2), Q_r1(2)], 'Color', color, 'LineWidth', 5);
+    if FIGURE == 1
+        plot([Q_r1(1) Q_r2(1)], [Q_r1(2), Q_r2(2)], 'Color', color, 'LineWidth', 5);
+        plot([Q_r2(1) Q_r3(1)], [Q_r2(2), Q_r3(2)], 'Color', color, 'LineWidth', 5);
+        plot([Q_r3(1) Q_r4(1)], [Q_r3(2), Q_r4(2)], 'Color', color, 'LineWidth', 5);
+        plot([Q_r4(1) Q_r1(1)], [Q_r4(2), Q_r1(2)], 'Color', color, 'LineWidth', 5);
+    end
     corners = [1 Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
     if WAIT_FOR_CLICK == 1
             waitforbuttonpress;
