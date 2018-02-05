@@ -1,8 +1,8 @@
-function [detected_gate] = snake_gate_detection(dir_name)
+function [detected_gate] = snake_gate_detection(dir_name,n,m)
 
 p = 1;
 
-for i = 1:1000
+for i = n:m
      file_name = [dir_name '/' 'img_' sprintf('%05d',i) '.jpg'];
     if ~exist(file_name, 'file')
         continue;
