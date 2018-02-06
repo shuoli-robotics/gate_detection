@@ -9,6 +9,12 @@ function [ GT ] = find_corners_manually( dir_name,n,m )
 
 GT = zeros(m-n+1,9);
 p = 1;
+
+% ------------------------
+n = 1;
+m = 10;
+% ------------------------
+
 for i = n:m
     
     file_name = [dir_name '/' 'img_' sprintf('%05d',i) '.jpg'];

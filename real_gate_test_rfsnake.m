@@ -6,7 +6,7 @@ dir_name = 'pic_cyberzoo';
 global channel3Min
 
  [ GT_gate ] = find_corners_manually( dir_name,0,1000 );
-load('detection_manually_1_16');
+%load('gt_labels_base_2_1');
 
 p = 1;
 for i = 10:10
