@@ -1,7 +1,6 @@
-function [corners] = run_detection_corner_refine_img(dir_name, frame_nr,p)
+function [corners,gates_candidate_corners] = run_detection_corner_refine_img(dir_name, frame_nr,p)
 
-global FIGURE
-SUB_SAMPLING_SNAKE = true;
+FIGURE = 0;
 WAIT_FOR_CLICK = 0;
 
 RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
@@ -14,7 +13,7 @@ figure(1)
 imshow(RGB);
 hold on
 end
-
+SUB_SAMPLING_SNAKE = true;
 
 [Response,maskedRGBImage] = createMask_basement(RGB);
 
@@ -33,12 +32,61 @@ if(SUB_SAMPLING_SNAKE)
     [x,y,s,n_gates] = sub_sampling_snake(Response); 
     if n_gates < 1
         corners = zeros(1,9);
+        gates_candidate_corners = [];
         if WAIT_FOR_CLICK == 1
             waitforbuttonpress;
         end
         close all
         return;
     end
+    
+    %---------------------------------------------------------------------
+    %                 refine corners of all gates founded
+    if FIGURE == 1
+       figure(2)
+       imshow(RGB);
+       hold on
+       title('Gates candidate');
+    end
+    gates_candidate_corners = zeros(n_gates,8);
+    for i = 1:n_gates
+        Q1 = [x(i)-s(i); y(i)-s(i)];
+        Q2 = [x(i)+s(i); y(i)-s(i)];
+        Q3 = [x(i)+s(i); y(i)+s(i)];
+        Q4 = [x(i)-s(i); y(i)+s(i)];
+        
+        Q_r1 = refine_corner(Q1,s(i),Response,0.4,FIGURE);
+        Q_r2 = refine_corner(Q2,s(i),Response,0.4,FIGURE);
+        Q_r3 = refine_corner(Q3,s(i),Response,0.4,FIGURE);
+        Q_r4 = refine_corner(Q4,s(i),Response,0.4,FIGURE);
+        
+        gates_candidate_corners(i,1) = Q_r1(1);
+        gates_candidate_corners(i,2) = Q_r2(1);
+        gates_candidate_corners(i,3) = Q_r3(1);
+        gates_candidate_corners(i,4) = Q_r4(1);
+        gates_candidate_corners(i,5) = Q_r1(2);
+        gates_candidate_corners(i,6) = Q_r2(2);
+        gates_candidate_corners(i,7) = Q_r3(2);
+        gates_candidate_corners(i,8) = Q_r4(2);
+        
+        if FIGURE == 1
+            figure(2)
+            plot([Q1(1) Q2(1)], [Q1(2), Q2(2)], 'g');
+            plot([Q2(1) Q3(1)], [Q2(2), Q3(2)], 'g');
+            plot([Q3(1) Q4(1)], [Q3(2), Q4(2)], 'g');
+            plot([Q4(1) Q1(1)], [Q4(2), Q1(2)], 'g');
+            
+            plot([Q_r1(1) Q_r2(1)], [Q_r1(2), Q_r2(2)], 'r');
+            plot([Q_r2(1) Q_r3(1)], [Q_r2(2), Q_r3(2)], 'r');
+            plot([Q_r3(1) Q_r4(1)], [Q_r3(2), Q_r4(2)], 'r');
+            plot([Q_r4(1) Q_r1(1)], [Q_r4(2), Q_r1(2)], 'r');
+
+        end
+    end
+    
+    %---------------------------------------------------------------------
+    
+    
     % check fitness of all gates and select the best one:
     STICK = false;
     cf = zeros(1,n_gates);
@@ -60,16 +108,17 @@ if(SUB_SAMPLING_SNAKE)
 
     color = [0 1 0];
     if FIGURE == 1
+        figure(1)
         plot([Q1(1) Q2(1)], [Q1(2), Q2(2)], 'Color', color, 'LineWidth', 5);
         plot([Q2(1) Q3(1)], [Q2(2), Q3(2)], 'Color', color, 'LineWidth', 5);
         plot([Q3(1) Q4(1)], [Q3(2), Q4(2)], 'Color', color, 'LineWidth', 5);
         plot([Q4(1) Q1(1)], [Q4(2), Q1(2)], 'Color', color, 'LineWidth', 5);
     end
     %sub corners
-    Q_r1 = refine_corner(Q1,s,Response,0.4);
-    Q_r2 = refine_corner(Q2,s,Response,0.4);
-    Q_r3 = refine_corner(Q3,s,Response,0.4);
-    Q_r4 = refine_corner(Q4,s,Response,0.4);
+    Q_r1 = refine_corner(Q1,s,Response,0.4,FIGURE);
+    Q_r2 = refine_corner(Q2,s,Response,0.4,FIGURE);
+    Q_r3 = refine_corner(Q3,s,Response,0.4,FIGURE);
+    Q_r4 = refine_corner(Q4,s,Response,0.4,FIGURE);
     
 %     gate_corners_x = [Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1)];
 %     gate_corners_y = [Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
@@ -90,7 +139,7 @@ end
 
 
 
-function [refined_corner] = refine_corner(corner,size,Response,s_factor)
+function [refined_corner] = refine_corner(corner,size,Response,s_factor,FIGURE)
     
     x_round_l = round(corner(1) - size * s_factor);
     x_round_h = round(corner(1) + size * s_factor);
@@ -105,11 +154,13 @@ function [refined_corner] = refine_corner(corner,size,Response,s_factor)
     Q1_s3 = [x_h; y_h];
     Q1_s4 = [x_l; y_h];
     color = [1 0 0];
-    plot([Q1_s1(1) Q1_s2(1)], [Q1_s1(2), Q1_s2(2)], 'Color', color, 'LineWidth', 2);
-    plot([Q1_s2(1) Q1_s3(1)], [Q1_s2(2), Q1_s3(2)], 'Color', color, 'LineWidth', 2);
-    plot([Q1_s3(1) Q1_s4(1)], [Q1_s3(2), Q1_s4(2)], 'Color', color, 'LineWidth', 2);
-    plot([Q1_s4(1) Q1_s1(1)], [Q1_s4(2), Q1_s1(2)], 'Color', color, 'LineWidth', 2);
     
+    if FIGURE == 1
+        plot([Q1_s1(1) Q1_s2(1)], [Q1_s1(2), Q1_s2(2)], 'Color', color, 'LineWidth', 2);
+        plot([Q1_s2(1) Q1_s3(1)], [Q1_s2(2), Q1_s3(2)], 'Color', color, 'LineWidth', 2);
+        plot([Q1_s3(1) Q1_s4(1)], [Q1_s3(2), Q1_s4(2)], 'Color', color, 'LineWidth', 2);
+        plot([Q1_s4(1) Q1_s1(1)], [Q1_s4(2), Q1_s1(2)], 'Color', color, 'LineWidth', 2);
+    end
     x_size = x_h-x_l+1;
     y_size = y_h-y_l+1;
     
@@ -172,31 +223,6 @@ x = min([W,x]);
 y = max([1,y]);
 y = min([H,y]);
 
-function Response = filter_HSV(HSV, H_ref, H_std_var, S_thresh)
-% function Response = filter_HSV(HSV, H_ref, H_std_var, S_thresh)
-
-% determine distance to mean, bending around 0 / 1:
-H = HSV(:,:,1);
-width = size(H, 2); height = size(H, 1);
-H1 = H - H_ref;
-H2 = ones(height, width) - H1;
-H = min(H1, H2);
-
-% filter on saturation:
-S = HSV(:,:, 2);
-S_Filter = S <= S_thresh;
-H = H + 1000 * S_Filter; % will get 0 probability
-
-% get the response:
-Response = normpdf(H, H_ref, H_std_var);
-
-
-function Response = filter_YCV(YCV, cr_min, dy_min)
-[DX, DY] = gradient(YCV(:,:,3));
-DY = abs(DY);
-DX = abs(DX);
-Response = DY > dy_min | YCV(:,:,3) > cr_min;
-
 
 
 function [BW,maskedRGBImage] = createMask_basement(RGB)
@@ -219,7 +245,7 @@ channel1Max = 255.000;
 
 % Define thresholds for channel 2 based on histogram settings
 channel2Min = 0.000;
-channel2Max = 255.000;
+channel2Max = 175.000;
 
 % Define thresholds for channel 3 based on histogram settings
  channel3Min = 134.000;

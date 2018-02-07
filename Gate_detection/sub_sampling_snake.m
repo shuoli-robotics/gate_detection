@@ -15,12 +15,12 @@ STICK = false;
 SQUARE = 1;
 CIRCLE = 2;
 SHAPE = SQUARE;
-MAX_SAMPLES = 5000; %5000
+MAX_SAMPLES = sample_num; %5000
 W = size(Response,2);
 H = size(Response,1);
 xs = []; ys = []; ss = [];
-% min_pixel_size = 25;
 min_pixel_size = minimun_length;
+%min_pixel_size = 25;
 min_fit = 0.45;
 graphics = true;%false;
 % if(graphics)

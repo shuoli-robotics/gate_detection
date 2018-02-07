@@ -13,7 +13,7 @@ p = 1;
 %load('2018_2_5_GT_with_SG');
 
 n = 1;
-m = 10;
+m = 20;
 TPR = zeros(m-n+1,1);
 FPR = zeros(m-n+1,1);
 TP = zeros(m-n+1,1);
@@ -22,18 +22,22 @@ TN = zeros(m-n+1,1);
 FN = zeros(m-n+1,1);
 for i = n:m
     i
-    minimun_length = (i-1)*10;
- [detected_gate] = snake_gate_detection(dir_name,0,1000);
+    minimun_length = (i-1)*5;
+    sample_num = i*1000;
+ [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name,0,1000);
+ %load('2018_2_7_autonomous_detection_temp');
+ %load('2018_2_7_autonomous_detection_temp_2');
+ [True_Positive,False_Positive, False_Negative,True_Negative] =...
+     count_4_category(dir_name,0,1000,GT_gate,gates_candidate_corners,detected_gate);
+% [True_Positive,False_Positive, False_Negative,True_Negative] = ...
+%     check_auto_detection_accuracy(dir_name,0,1000,GT_gate,detected_gate);
+% TP(i) = True_Positive
+% FP(i) = False_Positive
+% TN(i) = True_Negative
+% FN(i) =  False_Negative
 
-[True_Positive,False_Positive, False_Negative,True_Negative] = ...
-    check_auto_detection_accuracy(dir_name,0,1000,GT_gate,detected_gate);
-TP(i) = True_Positive
-FP(i) = False_Positive
-TN(i) = True_Negative
-FN(i) =  False_Negative
-
-temp1 = True_Positive/( True_Positive+False_Negative)
-temp2 = False_Positive/( False_Positive+True_Negative)
+% temp1 = True_Positive/( True_Positive+False_Negative)
+% temp2 = False_Positive/( False_Positive+True_Negative)
 TPR(i) = True_Positive/( True_Positive+False_Negative);
 FPR(i) =  False_Positive/( False_Positive+True_Negative);
 p = p + 1;
@@ -41,4 +45,7 @@ p = p + 1;
 end
 figure(10)
 plot( FPR, TPR,'*');
+grid on
+xlabel('False Positive rate');
+ylabel('True Positive rate');
 temp = 1;
