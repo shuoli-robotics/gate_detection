@@ -111,7 +111,7 @@ end
 
 
 function [] = plot_square(corner_coor,color)
-global FIGURE
+FIGURE = 1;
 
 if FIGURE == 1
     figure(1)
