@@ -23,7 +23,7 @@ FN = zeros(m-n+1,1);
 for i = n:m
     i
     minimun_length = (i-1)*5;
-    sample_num = i*1000;
+    sample_num = 1000;
  [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name,0,1000);
  %load('2018_2_7_autonomous_detection_temp');
  %load('2018_2_7_autonomous_detection_temp_2');

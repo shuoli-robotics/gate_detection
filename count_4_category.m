@@ -6,7 +6,7 @@ function [True_Positive,False_Positive, False_Negative,True_Negative] = count_4_
 
 
 p = 1;
-THRESH = 0.15;
+THRESH = 0.2;
 FIGURE = 0;
 WAIT_FOR_CLICK = 0;
 
@@ -92,7 +92,7 @@ for i = n:m
                    
                      if FIGURE == 1
                         figure(3)
-                        if relative_corner_error(j) < 0.15
+                        if relative_corner_error(j) < 0.2
                             plot_square(gates_candidate_corners{p}(j,:),'g',FIGURE);
                         else
                             plot_square(gates_candidate_corners{p}(j,:),'b',FIGURE);
