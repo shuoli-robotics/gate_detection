@@ -110,10 +110,10 @@ for i = n:m
                     end
                 else
                      False_Positive = False_Positive + 1;
-                     False_Negative = False_Negative + 1;
+                     %False_Negative = False_Negative + 1;
                      if FIGURE == 1
                         figure(3)
-                        s1 = 'False-Positive & False-Negative';
+                        s1 = 'False-Positive';
                         s2 = num2str(min(relative_corner_error));
                         ss = strcat(s1,s2);
                         title(ss);
