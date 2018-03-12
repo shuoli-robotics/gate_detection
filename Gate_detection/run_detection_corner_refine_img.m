@@ -15,7 +15,7 @@ hold on
 end
 SUB_SAMPLING_SNAKE = true;
 
-[Response,maskedRGBImage] = createMask_basement(RGB);
+[Response,~] = createMask_basement(RGB);
 
 
 if FIGURE == 1

@@ -11,10 +11,8 @@ function [xs,ys,ss,n_gates] = sub_sampling_snake(Response)
 
 global sample_num FIGURE minimun_length
 
-STICK = false;
 SQUARE = 1;
-CIRCLE = 2;
-SHAPE = SQUARE;
+
 MAX_SAMPLES = sample_num; %5000
 W = size(Response,2);
 H = size(Response,1);
