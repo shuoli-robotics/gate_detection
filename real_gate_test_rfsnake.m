@@ -22,14 +22,15 @@ FP_rate_std = zeros(m-n+1,1);
 
 ROC_statistic = cell(m-n+1,1);
 
-max_iter = 20;
+max_iter = 1;
 
 for i = n:m
     i
     minimun_length = (i-1)*5;
+%     minimun_length = 25;
     sample_num = 1000;
+    p = 1;
     while p <= max_iter
-        p
         [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name,0,1000);
         %
         %  load('2018_3_8_raw_detection');
