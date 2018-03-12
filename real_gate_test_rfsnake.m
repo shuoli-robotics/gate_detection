@@ -23,25 +23,25 @@ FP_rate_std = zeros(m-n+1,1);
 ROC_statistic = cell(m-n+1,1);
 
 max_iter = 20;
+
 for i = n:m
     i
-    ROC_statistic{i} = zeros(max_iter,6);
-    p = 1;
+    minimun_length = (i-1)*5;
+    sample_num = 1000;
     while p <= max_iter
-        minimun_length = (i-1)*5;
-        sample_num = 1000;
+        p
         [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name,0,1000);
-        
-        [True_Positive,False_Positive, False_Negative,True_Negative] =...
-            count_4_category(dir_name,0,1000,GT_gate,gates_candidate_corners,detected_gate);
-        %         TPR(i) = True_Positive/( True_Positive+False_Negative);
-        %         FPR(i) =  False_Positive/( False_Positive+True_Negative);
-        ROC_statistic{i}(p,1) = True_Positive;
-        ROC_statistic{i}(p,2) = False_Positive;
-        ROC_statistic{i}(p,3) = False_Negative;
-        ROC_statistic{i}(p,4) = True_Positive;
-        ROC_statistic{i}(p,5) = True_Positive/( True_Positive+False_Negative);
-        ROC_statistic{i}(p,6) = False_Positive/( False_Positive+True_Negative);
+        %
+        %  load('2018_3_8_raw_detection');
+        % %
+        refined_gate_candidates = refine_gate_candidates(gates_candidate_corners);
+        [TP,TN,FP,FN] = count_ROC_term_with_refined_candidates(GT_gate,refined_gate_candidates);
+        ROC_statistic{i}(p,1) = TP;
+        ROC_statistic{i}(p,2) = TN;
+        ROC_statistic{i}(p,3) = FP;
+        ROC_statistic{i}(p,4) = FN;
+        ROC_statistic{i}(p,5) = TP/(TP + FN);
+        ROC_statistic{i}(p,6) = FP/(FP + TN);
         p = p+1;
     end
     TP_rate_mean(i) = mean(ROC_statistic{i}(:,5));
