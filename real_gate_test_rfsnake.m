@@ -25,9 +25,11 @@ ROC_statistic = cell(m-n+1,1);
 max_iter = 20;
 
 for i = n:m
+    i
     minimun_length = (i-1)*5;
     sample_num = 1000;
     while p <= max_iter
+        p
         [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name,0,1000);
         %
         %  load('2018_3_8_raw_detection');

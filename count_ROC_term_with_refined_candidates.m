@@ -4,6 +4,7 @@ function [TP,TN,FP,FN] = count_ROC_term_with_refined_candidates(GT,RF)
 THRESH = 0.3;
 FIGURE = 0;
 figure_num = 1;
+color = 'r';
 p = 1;
 TP = 0;
 TN = 0;
@@ -33,44 +34,53 @@ for k = 0:1000
                         flag_already_TP = 1;
                     end
                     if FIGURE == 1
-                        plot_and_label_candidates(RF{p}(j,:),'TP',figure_num)
+                        plot_and_label_candidates(RF{p}(j,:),'TP',figure_num,color)
                     end
                 else
                     FP = FP + 1;
                     if FIGURE == 1
-                        plot_and_label_candidates(RF{p}(j,:),'FP',figure_num)
+                        plot_and_label_candidates(RF{p}(j,:),'FP',figure_num,color)
                     end
                 end
+            end
+            if  flag_already_TP == 0
+                FN = FN + 1;
+                plot_and_label_candidates(GT(p,2:9),'FN',figure_num,'b')
             end
         elseif GT(p,1) == 1 && isempty(RF{p})
             FN = FN + 1;
             if FIGURE == 1
-                plot_and_label_candidates(zeros(1,8),'FN',figure_num)
+                plot_and_label_candidates(zeros(1,8),'FN',figure_num,color)
             end
         elseif GT(p,1) == 0 && ~isempty(RF{p})
             for j = 1:size(RF{p},1)
                 FP = FP + 1;
                 if FIGURE == 1
-                    plot_and_label_candidates(RF{p}(j,:),'FP',figure_num)
+                    plot_and_label_candidates(RF{p}(j,:),'FP',figure_num,color)
                 end
             end
         elseif GT(p,1) == 0 && isempty(RF{p})
             TN = TN + 1;
             if FIGURE == 1
-                plot_and_label_candidates(zeros(1,8),'TN',figure_num)
+                plot_and_label_candidates(zeros(1,8),'TN',figure_num,color)
             end
         end
+        
+%         TP
+%         TN
+%         FP
+%         FN
         
         p = p+ 1;
     end
 end
 end
 
-function [] = plot_and_label_candidates(coor,label,figure_num)
+function [] = plot_and_label_candidates(coor,label,figure_num,color)
 % This function is used to plot raw gates candidates and
 % gates after clustering
 linewidth = 1;
-color = 'r';
+%color = 'r';
 figure(figure_num)
 
 [x_center,y_center] = polyxpoly([coor(1) coor(3)],[coor(5) coor(7)], ...
