@@ -2,14 +2,17 @@ function [corners,gates_candidate_corners] = run_detection_corner_refine_img(dir
 global color_fitness_threshold
 
 FIGURE = 0;
+FIGURE_DEBUG = 0;
 WAIT_FOR_CLICK = 0;
-% THRESH = color_fitness_threshold;
-THRESH = 0.45;
+THRESH = color_fitness_threshold;
+
 
 RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
 
 RGB = double(RGB) ./ 255;
 RGB = imrotate(RGB, 90);
+
+
 
 if FIGURE == 1
 figure(1)
@@ -20,6 +23,14 @@ SUB_SAMPLING_SNAKE = true;
 
 [Response,maskedRGBImage] = createMask_basement(RGB);
 
+if FIGURE_DEBUG == 1
+   figure(1)
+   imagesc(Response);
+   hold on
+   figure(2)
+   imagesc(Response);
+   hold on
+end
 
 if FIGURE == 1
     figure(1);
@@ -67,6 +78,17 @@ if(SUB_SAMPLING_SNAKE)
         
         Corner_vector = [Q_r1 Q_r2 Q_r3 Q_r4];
         
+        % -----------------------------------------------------------------
+        % for debug
+        if FIGURE_DEBUG == 1
+            coor = [Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) ...
+                Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
+            plot_square(coor,'r',1,1);
+        end
+        
+        %------------------------------------------------------------------
+        
+        
         [color_fitness] = get_coulor_fitness_of_polygon(Response,Corner_vector);
         if color_fitness > THRESH
             gates_candidate_corners(p,1) = Q_r1(1);
@@ -77,6 +99,9 @@ if(SUB_SAMPLING_SNAKE)
             gates_candidate_corners(p,6) = Q_r2(2);
             gates_candidate_corners(p,7) = Q_r3(2);
             gates_candidate_corners(p,8) = Q_r4(2);
+            if FIGURE_DEBUG == 1
+                plot_square(gates_candidate_corners(p,:),'r',1,2);
+            end
             p = p + 1;
             
         else
@@ -285,7 +310,7 @@ end
 
 
 function [color_fitness] = get_coulor_fitness_of_polygon(Response,Q)
-FIGURE = 1;
+FIGURE = 0;
 
 Q1 = Q(1:2);
 Q2 = Q(3:4);

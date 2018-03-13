@@ -22,13 +22,14 @@ FP_rate_std = zeros(m-n+1,1);
 
 ROC_statistic = cell(m-n+1,1);
 
-max_iter = 10;
+max_iter = 1;
 
 for i = n:m
     i
     %minimun_length = (i-1)*5;
     minimun_length = 25;
     color_fitness_threshold = (i-1)*0.05;
+    %color_fitness_threshold = 0.8;
     sample_num = 1000;
     p = 1;
     while p <= max_iter
