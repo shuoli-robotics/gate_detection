@@ -21,8 +21,7 @@ H = size(Response,1);
 xs = []; ys = []; ss = [];
 min_pixel_size = minimun_length;
 %min_pixel_size = 25;
-min_fit = 0.45;
-graphics = true;%false;
+
 % if(graphics)
 %     figure();
 %     imagesc(Response);
