@@ -27,9 +27,9 @@ max_iter = 1;
 for i = n:m
     i
     %minimun_length = (i-1)*5;
-    minimun_length = 25;
-    color_fitness_threshold = (i-1)*0.05;
-    %color_fitness_threshold = 0.8;
+    minimun_length = 20;
+    %color_fitness_threshold = (i-1)*0.05;
+    color_fitness_threshold = 0.5;
     sample_num = 1000;
     p = 1;
     while p <= max_iter
@@ -37,8 +37,8 @@ for i = n:m
         %
         %  load('2018_3_8_raw_detection');
         % %
-        refined_gate_candidates = refine_gate_candidates(gates_candidate_corners);
-        [TP,TN,FP,FN] = count_ROC_term_with_refined_candidates(GT_gate,refined_gate_candidates);
+        [refined_gate_candidates,refined_gate_candidates_cf] = refine_gate_candidates(gates_candidate_corners);
+        [TP,TN,FP,FN] = count_ROC_term_with_refined_candidates(GT_gate,refined_gate_candidates_cf);
         ROC_statistic{i}(p,1) = TP;
         ROC_statistic{i}(p,2) = TN;
         ROC_statistic{i}(p,3) = FP;
