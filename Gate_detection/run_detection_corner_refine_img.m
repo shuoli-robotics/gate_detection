@@ -1,7 +1,10 @@
 function [corners,gates_candidate_corners] = run_detection_corner_refine_img(dir_name, frame_nr,p)
+global color_fitness_threshold
 
 FIGURE = 0;
 WAIT_FOR_CLICK = 0;
+% THRESH = color_fitness_threshold;
+THRESH = 0.45;
 
 RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
 
@@ -49,6 +52,8 @@ if(SUB_SAMPLING_SNAKE)
        title('Gates candidate');
     end
     gates_candidate_corners = zeros(n_gates,8);
+    
+    p = 1;
     for i = 1:n_gates
         Q1 = [x(i)-s(i); y(i)-s(i)];
         Q2 = [x(i)+s(i); y(i)-s(i)];
@@ -60,14 +65,25 @@ if(SUB_SAMPLING_SNAKE)
         Q_r3 = refine_corner(Q3,s(i),Response,0.4,FIGURE);
         Q_r4 = refine_corner(Q4,s(i),Response,0.4,FIGURE);
         
-        gates_candidate_corners(i,1) = Q_r1(1);
-        gates_candidate_corners(i,2) = Q_r2(1);
-        gates_candidate_corners(i,3) = Q_r3(1);
-        gates_candidate_corners(i,4) = Q_r4(1);
-        gates_candidate_corners(i,5) = Q_r1(2);
-        gates_candidate_corners(i,6) = Q_r2(2);
-        gates_candidate_corners(i,7) = Q_r3(2);
-        gates_candidate_corners(i,8) = Q_r4(2);
+        Corner_vector = [Q_r1 Q_r2 Q_r3 Q_r4];
+        
+        [color_fitness] = get_coulor_fitness_of_polygon(Response,Corner_vector);
+        if color_fitness > THRESH
+            gates_candidate_corners(p,1) = Q_r1(1);
+            gates_candidate_corners(p,2) = Q_r2(1);
+            gates_candidate_corners(p,3) = Q_r3(1);
+            gates_candidate_corners(p,4) = Q_r4(1);
+            gates_candidate_corners(p,5) = Q_r1(2);
+            gates_candidate_corners(p,6) = Q_r2(2);
+            gates_candidate_corners(p,7) = Q_r3(2);
+            gates_candidate_corners(p,8) = Q_r4(2);
+            p = p + 1;
+            
+        else
+            temp = 1;
+        end
+        
+        
         
         if FIGURE == 1
             figure(2)
@@ -135,6 +151,7 @@ if(SUB_SAMPLING_SNAKE)
             waitforbuttonpress;
     end
     close all
+end
 end
 
 
@@ -213,6 +230,7 @@ function [refined_corner] = refine_corner(corner,size,Response,s_factor,FIGURE)
 %     plot([Q1_s2(1) Q1_s3(1)], [Q1_s2(2), Q1_s3(2)], 'Color', color, 'LineWidth', 2);
 %     plot([Q1_s3(1) Q1_s4(1)], [Q1_s3(2), Q1_s4(2)], 'Color', color, 'LineWidth', 2);
 %     plot([Q1_s4(1) Q1_s1(1)], [Q1_s4(2), Q1_s1(2)], 'Color', color, 'LineWidth', 2);
+end
 
 
 function [x, y] = check_coordinate(x, y, W, H)
@@ -222,6 +240,7 @@ x = max([1,x]);
 x = min([W,x]);
 y = max([1,y]);
 y = min([H,y]);
+end
 
 
 
@@ -262,6 +281,62 @@ maskedRGBImage = RGB;
 
 % Set background pixels where BW is false to zero.
 maskedRGBImage(repmat(~BW,[1 1 3])) = 0;
+end
 
 
+function [color_fitness] = get_coulor_fitness_of_polygon(Response,Q)
+FIGURE = 1;
+
+Q1 = Q(1:2);
+Q2 = Q(3:4);
+Q3 = Q(5:6);
+Q4 = Q(7:8);
+
+% mask for lines
+mask1 = mask_a_line(Q1,Q2,Response);
+mask2 = mask_a_line(Q2,Q3,Response);
+mask3 = mask_a_line(Q3,Q4,Response);
+mask4 = mask_a_line(Q4,Q1,Response);
+
+mask_square = mask1 | mask2 | mask3 | mask4;
+
+% check color
+mask_square_with_picture  = mask_square & Response; % how many pixels the square hit the color
+color_fitness = sum(mask_square_with_picture) / sum(mask_square);
+
+
+if FIGURE == 1
+    figure(1)
+    hold on
+    imagesc(mask_square);
+    imagesc(Response*50);
+    figure(2)
+    imagesc(mask_square_with_picture);
+    close all
+end
+end
+
+
+function [mask] = mask_a_line(Q1,Q2,pic)
+% This function sets the line between Q1(x,y) and Q2(x,y) to be 1 and
+% others to be 0
+
+
+mask = zeros(size(pic));
+x1 = Q1(1);
+x2 = Q2(1);
+y1 = Q1(2);
+y2 = Q2(2);
+
+% Distance (in pixels) between the two endpoints
+nPoints = ceil(sqrt((x2 - x1).^2 + (y2 - y1).^2)) + 1;
+
+% Determine x and y locations along the line
+xvalues = round(linspace(x1, x2, nPoints));
+yvalues = round(linspace(y1, y2, nPoints));
+
+% Replace the relevant values within the mask
+mask(sub2ind(size(mask), yvalues, xvalues)) = 1;
+
+end
 

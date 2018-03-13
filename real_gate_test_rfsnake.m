@@ -1,10 +1,10 @@
 close all;
 clear all
-global sample_num FIGURE minimun_length
+global sample_num FIGURE minimun_length color_fitness_threshold
 
 dir_name = 'pic_cyberzoo';
 FIGURE = 0;
-% [ GT_gate ] = find_corners_manually( dir_name,0,1000 );
+% [ GT_gate ] = findmask_square_corners_manually( dir_name,0,1000 );
  load('2018_2_2_ground_truth_gate_selection');
 %check_accuracy_of_manually_detection(GT_gate,dir_name,0,1000);
 
@@ -26,8 +26,9 @@ max_iter = 1;
 
 for i = n:m
     i
-    minimun_length = (i-1)*5;
-%     minimun_length = 25;
+    %minimun_length = (i-1)*5;
+    minimun_length = 25;
+    color_fitness_threshold = (i-1)*0.05;
     sample_num = 1000;
     p = 1;
     while p <= max_iter
