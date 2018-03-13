@@ -45,7 +45,9 @@ for k = 0:1000
             end
             if  flag_already_TP == 0
                 FN = FN + 1;
-                plot_and_label_candidates(GT(p,2:9),'FN',figure_num,'b')
+                if FIGURE == 1
+                    plot_and_label_candidates(GT(p,2:9),'FN',figure_num,'b');
+                end
             end
         elseif GT(p,1) == 1 && isempty(RF{p})
             FN = FN + 1;
