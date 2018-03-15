@@ -42,16 +42,21 @@ for i = 0:1000
         end
         
         if CF_FIGURE == 1
-            figure(1)
-            imagesc(Response);
-            hold on
-            plot_gates_candidates(refined_gate_candidates{p},'r',1,1);
-            
-            figure(2)
-            imagesc(Response);
-            hold on
-            plot_gates_candidates( gate_candidates_color_fitness{p},'r',1,2);
-            close all;
+%             figure(1)
+%             imagesc(Response);
+%             hold on
+%             plot_gates_candidates(refined_gate_candidates{p},'r',1,1);
+%             
+%             figure(2)
+%             imagesc(Response);
+%             hold on
+%             plot_gates_candidates( gate_candidates_color_fitness{p},'r',1,2);
+%             close all;
+%               plot_real_gate_and_candidates(RGB,gate_candidates_raw{p},'r',1,1);
+%               plot_real_gate_and_candidates(RGB,refined_gate_candidates{p},'r',1,2);
+%               plot_real_gate_and_candidates(RGB,gate_candidates_color_fitness{p},'r',1,3);
+%               
+%               close all;
         end
     end
  p = p+1;
@@ -91,7 +96,7 @@ function [filtered_gates] = filter_gates_with_color(gates_candidates,Response,cf
 filtered_gates = [];
 p = 1;
 
-FIGURE_DEBUG = 1
+FIGURE_DEBUG = 0;
 
 for i = 1:size(gates_candidates,1)
     Q = [gates_candidates(i,1) gates_candidates(i,5) ...
@@ -116,4 +121,5 @@ for i = 1:size(gates_candidates,1)
     end
 end
 end
+
 

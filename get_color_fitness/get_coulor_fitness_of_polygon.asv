@@ -15,14 +15,14 @@ mask4 = mask_a_line(Q4,Q1,Response);
 mask_square = mask1 | mask2 | mask3 | mask4;
 
 [blur_response_up_down] = move_matrix_up_down(Response,2);
-[blur_response] = move_matrix_left_right(blur_response_up_down,2);
-% figure(1)
-%  imagesc(Response);
-%  figure(2)
-%  imagesc(blur_response);
-%  close all
+
+figure(1)
+ imagesc(Response);
+ figure(2)
+ imagesc(blur_response);
+ close all
 % check color
-mask_square_with_picture  = mask_square & blur_response; % how many pixels the square hit the color
+mask_square_with_picture  = mask_square & Response; % how many pixels the square hit the color
 color_fitness = sum(mask_square_with_picture) / sum(mask_square);
 
 
@@ -99,11 +99,11 @@ for i = -max_lines:max_lines
     if i < 0
         % move left
         temp_matrix{p} = circshift(matrix,i,2);
-        temp_matrix{p}(:,n-abs(i)+1:end) = zeros(m,abs(i));
+        temp_matrix{p}(m-abs(i)+1:end,:) = zeros(abs(i),n);
     elseif i > 0
-        % move right
-         temp_matrix{p} = circshift(matrix,i,2);
-        temp_matrix{p}(:,1:i) = zeros(m,i);
+        % move down
+         temp_matrix{p} = circshift(matrix,i);
+         temp_matrix{p}(1:i,:) = zeros(i,n);
     else
         temp_matrix{p} = matrix;
     end

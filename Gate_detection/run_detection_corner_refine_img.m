@@ -23,14 +23,14 @@ SUB_SAMPLING_SNAKE = true;
 
 [Response,~] = createMask_basement(RGB);
 
-if FIGURE_DEBUG == 1
-   figure(1)
-   imagesc(Response);
-   hold on
-   figure(2)
-   imagesc(Response);
-   hold on
-end
+% if FIGURE_DEBUG == 1
+%    figure(1)
+%    imagesc(Response);
+%    hold on
+%    figure(2)
+%    imagesc(Response);
+%    hold on
+% end
 
 if FIGURE == 1
     figure(1);
@@ -71,19 +71,29 @@ if(SUB_SAMPLING_SNAKE)
         Q3 = [x(i)+s(i); y(i)+s(i)];
         Q4 = [x(i)-s(i); y(i)+s(i)];
         
-        Q_r1 = refine_corner(Q1,s(i),Response,0.4,FIGURE);
-        Q_r2 = refine_corner(Q2,s(i),Response,0.4,FIGURE);
-        Q_r3 = refine_corner(Q3,s(i),Response,0.4,FIGURE);
-        Q_r4 = refine_corner(Q4,s(i),Response,0.4,FIGURE);
+        Q_r1 = refine_corner(Q1,s(i),Response,0.5,FIGURE);
+        Q_r2 = refine_corner(Q2,s(i),Response,0.5,FIGURE);
+        Q_r3 = refine_corner(Q3,s(i),Response,0.5,FIGURE);
+        Q_r4 = refine_corner(Q4,s(i),Response,0.5,FIGURE);
         
-        Corner_vector = [Q_r1 Q_r2 Q_r3 Q_r4];
+        
+        if FIGURE_DEBUG == 1
+            figure(1)
+            imshow(RGB);
+            coor = [Q1(1) Q2(1) Q3(1) Q4(1) ...
+                Q1(2) Q2(2) Q3(2) Q4(2)];
+            plot_square(coor,'r',1,1);
+        end
         
         % -----------------------------------------------------------------
         % for debug
         if FIGURE_DEBUG == 1
+            figure(2)
+            imshow(RGB);
             coor = [Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) ...
                 Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
-            plot_square(coor,'r',1,1);
+            plot_square(coor,'r',1,2);
+            close all
         end
         
         %------------------------------------------------------------------
