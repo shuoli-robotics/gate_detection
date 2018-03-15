@@ -28,8 +28,8 @@ for i = n:m
     i
     %minimun_length = (i-1)*5;
     minimun_length = 35;
-    color_fitness_threshold = (i-1)*0.05;
-    %color_fitness_threshold = 0.8;
+    %color_fitness_threshold = (i-1)*0.05;
+    color_fitness_threshold = 0.7;
     sample_num = 1000;
     p = 1;
     while p <= max_iter

@@ -1,4 +1,4 @@
-function [color_fitness] = get_coulor_fitness_of_polygon(Response,Q)
+function [color_fitness] = get_coulor_fitness_of_polygon(Response,Q,coor)
 FIGURE = 0;
 
 Q1 = Q(1:2);
@@ -17,10 +17,15 @@ mask_square = mask1 | mask2 | mask3 | mask4;
 [blur_response_up_down] = move_matrix_up_down(Response,2);
 [blur_response] = move_matrix_left_right(blur_response_up_down,2);
 % figure(1)
+% hold on
 %  imagesc(Response);
+%  plot_square(coor,'r',1,1);
 %  figure(2)
+%  hold on
 %  imagesc(blur_response);
-%  close all
+%  plot_square(coor,'r',1,2);
+ 
+ close all
 % check color
 mask_square_with_picture  = mask_square & blur_response; % how many pixels the square hit the color
 color_fitness = sum(mask_square_with_picture) / sum(mask_square);
