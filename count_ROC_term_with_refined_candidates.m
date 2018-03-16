@@ -1,18 +1,15 @@
-function [TP2,TN2,FP2,FN2] = count_ROC_term_with_refined_candidates(GT,RF1,RF2,Raw)
+function [TP,FP,FN] = count_ROC_term_with_refined_candidates(GT,detected,group_num)
 % This function is used to count 4 terms for ROC curve
 
 THRESH = 0.3;
 FIGURE = 0;
 color = 'r';
 p = 1;
-TP1 = 0;
-TN1 = 0;
-FP1 = 0;
-FN1 = 0;
-TP2 = 0;
-TN2 = 0;
-FP2 = 0;
-FN2 = 0;
+TP = 0;
+TN = 0;
+FP = 0;
+FN = 0;
+
 dir_name = 'pic_cyberzoo';
 for k = 0:1000
     file_name = [dir_name '/' 'img_' sprintf('%05d',k) '.jpg'];
@@ -27,108 +24,42 @@ for k = 0:1000
             imshow(RGB);
             hold on
             plot_square(GT(p,2:9),'b',1,1)
-            for j = 1:size(Raw{p},1)
-              plot_and_label_candidates(Raw{p}(j,:),'',1,color)
-            end
-            figure(2)
-            imshow(RGB);
-            hold on
-            figure(3) 
-            imshow(RGB);
-            hold on
-        end
-        
-        if GT(p,1) == 1 && ~isempty(RF1{p})
-            flag_already_TP = 0;  % there is already a TP
-            for j = 1:size(RF1{p},1)
-                if is_two_polygon_similar(GT(p,2:9),RF1{p}(j,:),THRESH)
-                    if flag_already_TP == 0
-                        TP1 = TP1+1;
-                        flag_already_TP = 1;
-                    end
-                    if FIGURE == 1
-                        plot_and_label_candidates(RF1{p}(j,:),'TP',2,color)
-                    end
-                else
-                    FP1 = FP1 + 1;
-                    if FIGURE == 1
-                        plot_and_label_candidates(RF1{p}(j,:),'FP',2,color)
-                    end
-                end
-            end
-            if  flag_already_TP == 0
-                FN1 = FN1 + 1;
-                if FIGURE == 1
-                    plot_and_label_candidates(GT(p,2:9),'FN',2,'b');
-                end
-            end
-        elseif GT(p,1) == 1 && isempty(RF1{p})
-            FN1 = FN1 + 1;
-            if FIGURE == 1
-                plot_and_label_candidates(zeros(1,8),'FN',2,color)
-            end
-        elseif GT(p,1) == 0 && ~isempty(RF1{p})
-            for j = 1:size(RF1{p},1)
-                FP1 = FP1 + 1;
-                if FIGURE == 1
-                    plot_and_label_candidates(RF1{p}(j,:),'FP',2,color)
-                end
-            end
-        elseif GT(p,1) == 0 && isempty(RF1{p})
-            TN1 = TN1 + 1;
-            if FIGURE == 1
-                plot_and_label_candidates(zeros(1,8),'TN',2,color)
+            for j = 1:size(detected{p},1)
+              plot_and_label_candidates(detected{p}(j,:),'',1,color)
             end
         end
         
-        if GT(p,1) == 1 && ~isempty(RF2{p})
+        if  ~isempty(detected{p})
             flag_already_TP = 0;  % there is already a TP
-            for j = 1:size(RF2{p},1)
+            for j = 1:size(detected{p},1)
                 if is_two_polygon_similar(GT(p,2:9),RF2{p}(j,:),THRESH)
                     if flag_already_TP == 0
-                        TP2 = TP2+1;
+                        TP = TP+1;
                         flag_already_TP = 1;
                     end
                     if FIGURE == 1
                         plot_and_label_candidates(RF2{p}(j,:),'TP',3,color)
                     end
                 else
-                    FP2 = FP2 + 1;
+                    FP = FP + 1;
                     if FIGURE == 1
                         plot_and_label_candidates(RF2{p}(j,:),'FP',3,color)
                     end
                 end
             end
             if  flag_already_TP == 0
-                FN2 = FN2 + 1;
+                FN = FN + 1;
                 if FIGURE == 1
                     plot_and_label_candidates(GT(p,2:9),'FN',3,'b');
                 end
             end
-        elseif GT(p,1) == 1 && isempty(RF2{p})
-            FN2 = FN2 + 1;
+        elseif isempty(detected{p})
+            FN = FN + 1;
             if FIGURE == 1
                 plot_and_label_candidates(zeros(1,8),'FN',3,color)
             end
-        elseif GT(p,1) == 0 && ~isempty(RF2{p})
-            for j = 1:size(RF2{p},1)
-                FP2 = FP2 + 1;
-                if FIGURE == 1
-                    plot_and_label_candidates(RF2{p}(j,:),'FP',3,color)
-                end
-            end
-        elseif GT(p,1) == 0 && isempty(RF2{p})
-            TN2 = TN2 + 1;
-            if FIGURE == 1
-                plot_and_label_candidates(zeros(1,8),'TN',3,color)
-            end
-        end
-        
-        if p == 59
-           temp = 1; 
         end
         close all;
-        
         p = p+ 1;
     end
 end
