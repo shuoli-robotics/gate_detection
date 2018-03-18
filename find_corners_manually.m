@@ -24,6 +24,10 @@ for i = n:m
     RGB = imread(file_name);
     RGB = imrotate(RGB, 90);
    
+    figure(2)
+    [Response,~] = createMask_basement(RGB);
+     imagesc(Response);
+    
     figure(1)
     imshow(RGB);
     title(i);

@@ -2,10 +2,10 @@ close all;
 clear all
 global sample_num FIGURE minimun_length color_fitness_threshold
 
-dir_name = 'pic_cyberzoo';
+dir_name = 'basement';
 FIGURE = 0;
-% [ GT_gate ] = findmask_square_corners_manually( dir_name,0,1000 );
- load('2018_2_2_ground_truth_gate_selection');
+ [ GT_gate ] = find_corners_manually( dir_name,0,1000 );
+ %load('2018_2_2_ground_truth_gate_selection');
 %check_accuracy_of_manually_detection(GT_gate,dir_name,0,1000);
 
 %check_accuracy_of_manually_detection(GT,dir_name,n,m)

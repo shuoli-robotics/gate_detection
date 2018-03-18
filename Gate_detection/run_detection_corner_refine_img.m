@@ -1,9 +1,8 @@
 function [corners,gates_candidate_corners] = run_detection_corner_refine_img(dir_name, frame_nr,p)
 
 
-FIGURE = 0;
-FIGURE_DEBUG = 0;
-WAIT_FOR_CLICK = 0;
+FIGURE = 1;
+
 
 
 
@@ -13,31 +12,11 @@ RGB = double(RGB) ./ 255;
 RGB = imrotate(RGB, 90);
 
 
-
-if FIGURE == 1
-figure(1)
-imshow(RGB);
-hold on
-end
 SUB_SAMPLING_SNAKE = true;
 
 [Response,~] = createMask_basement(RGB);
 
-% if FIGURE_DEBUG == 1
-%    figure(1)
-%    imagesc(Response);
-%    hold on
-%    figure(2)
-%    imagesc(Response);
-%    hold on
-% end
 
-if FIGURE == 1
-    figure(1);
-    imagesc(Response);
-    title(p);
-    hold on;
-end
 if(SUB_SAMPLING_SNAKE)
 
     SQUARE = 1;
@@ -47,21 +26,12 @@ if(SUB_SAMPLING_SNAKE)
     if n_gates < 1
         corners = zeros(1,9);
         gates_candidate_corners = [];
-        if WAIT_FOR_CLICK == 1
-            waitforbuttonpress;
-        end
-        close all
         return;
     end
     
     %---------------------------------------------------------------------
     %                 refine corners of all gates founded
-    if FIGURE == 1
-       figure(2)
-       imshow(RGB);
-       hold on
-       title('Gates candidate');
-    end
+   
     gates_candidate_corners = zeros(n_gates,8);
     
     p = 1;
@@ -76,62 +46,17 @@ if(SUB_SAMPLING_SNAKE)
         Q_r3 = refine_corner(Q3,s(i),Response,0.5,FIGURE);
         Q_r4 = refine_corner(Q4,s(i),Response,0.5,FIGURE);
         
-        
-        if FIGURE_DEBUG == 1
-            figure(1)
-            imshow(RGB);
-            coor = [Q1(1) Q2(1) Q3(1) Q4(1) ...
-                Q1(2) Q2(2) Q3(2) Q4(2)];
-            plot_square(coor,'r',1,1);
-        end
-        
-        % -----------------------------------------------------------------
-        % for debug
-        if FIGURE_DEBUG == 1
-            figure(2)
-            imshow(RGB);
-            coor = [Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) ...
-                Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
-            plot_square(coor,'r',1,2);
-            close all
-        end
-        
-        %------------------------------------------------------------------
-        
-        
-%        [color_fitness] = get_coulor_fitness_of_polygon(Response,Corner_vector);
-        %if color_fitness > THRESH
-            gates_candidate_corners(p,1) = Q_r1(1);
-            gates_candidate_corners(p,2) = Q_r2(1);
-            gates_candidate_corners(p,3) = Q_r3(1);
-            gates_candidate_corners(p,4) = Q_r4(1);
-            gates_candidate_corners(p,5) = Q_r1(2);
-            gates_candidate_corners(p,6) = Q_r2(2);
-            gates_candidate_corners(p,7) = Q_r3(2);
-            gates_candidate_corners(p,8) = Q_r4(2);
-            if FIGURE_DEBUG == 1
-                plot_square(gates_candidate_corners(p,:),'r',1,2);
-            end
-            p = p + 1;
-            
-        %else
-        %end
-        
-        
-        
-        if FIGURE == 1
-            figure(2)
-            plot([Q1(1) Q2(1)], [Q1(2), Q2(2)], 'g');
-            plot([Q2(1) Q3(1)], [Q2(2), Q3(2)], 'g');
-            plot([Q3(1) Q4(1)], [Q3(2), Q4(2)], 'g');
-            plot([Q4(1) Q1(1)], [Q4(2), Q1(2)], 'g');
-            
-            plot([Q_r1(1) Q_r2(1)], [Q_r1(2), Q_r2(2)], 'r');
-            plot([Q_r2(1) Q_r3(1)], [Q_r2(2), Q_r3(2)], 'r');
-            plot([Q_r3(1) Q_r4(1)], [Q_r3(2), Q_r4(2)], 'r');
-            plot([Q_r4(1) Q_r1(1)], [Q_r4(2), Q_r1(2)], 'r');
+        gates_candidate_corners(p,1) = Q_r1(1);
+        gates_candidate_corners(p,2) = Q_r2(1);
+        gates_candidate_corners(p,3) = Q_r3(1);
+        gates_candidate_corners(p,4) = Q_r4(1);
+        gates_candidate_corners(p,5) = Q_r1(2);
+        gates_candidate_corners(p,6) = Q_r2(2);
+        gates_candidate_corners(p,7) = Q_r3(2);
+        gates_candidate_corners(p,8) = Q_r4(2);
+        p = p + 1;
 
-        end
+        
     end
     
     %---------------------------------------------------------------------
@@ -157,13 +82,6 @@ if(SUB_SAMPLING_SNAKE)
 
 
     color = [0 1 0];
-    if FIGURE == 1
-        figure(1)
-        plot([Q1(1) Q2(1)], [Q1(2), Q2(2)], 'Color', color, 'LineWidth', 5);
-        plot([Q2(1) Q3(1)], [Q2(2), Q3(2)], 'Color', color, 'LineWidth', 5);
-        plot([Q3(1) Q4(1)], [Q3(2), Q4(2)], 'Color', color, 'LineWidth', 5);
-        plot([Q4(1) Q1(1)], [Q4(2), Q1(2)], 'Color', color, 'LineWidth', 5);
-    end
     %sub corners
     Q_r1 = refine_corner(Q1,s,Response,0.4,FIGURE);
     Q_r2 = refine_corner(Q2,s,Response,0.4,FIGURE);
@@ -174,17 +92,9 @@ if(SUB_SAMPLING_SNAKE)
 %     gate_corners_y = [Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
 
     color = [1 0 0];
-    if FIGURE == 1
-        plot([Q_r1(1) Q_r2(1)], [Q_r1(2), Q_r2(2)], 'Color', color, 'LineWidth', 5);
-        plot([Q_r2(1) Q_r3(1)], [Q_r2(2), Q_r3(2)], 'Color', color, 'LineWidth', 5);
-        plot([Q_r3(1) Q_r4(1)], [Q_r3(2), Q_r4(2)], 'Color', color, 'LineWidth', 5);
-        plot([Q_r4(1) Q_r1(1)], [Q_r4(2), Q_r1(2)], 'Color', color, 'LineWidth', 5);
-    end
+ 
     corners = [1 Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
-    if WAIT_FOR_CLICK == 1
-            waitforbuttonpress;
-    end
-    close all
+
 end
 end
 
@@ -197,8 +107,8 @@ function [refined_corner] = refine_corner(corner,size,Response,s_factor,FIGURE)
     y_round_l = round(corner(2) - size * s_factor);
     y_round_h = round(corner(2) + size * s_factor);
     
-    [x_l, y_l] = check_coordinate(x_round_l, y_round_l, 315, 160);
-    [x_h, y_h] = check_coordinate(x_round_h, y_round_h, 315, 160);
+    [x_l, y_l] = check_coordinate(x_round_l, y_round_l, 312, 160);
+    [x_h, y_h] = check_coordinate(x_round_h, y_round_h, 312, 160);
     
     Q1_s1 = [x_l; y_l];
     Q1_s2 = [x_h; y_l];
@@ -206,12 +116,12 @@ function [refined_corner] = refine_corner(corner,size,Response,s_factor,FIGURE)
     Q1_s4 = [x_l; y_h];
     color = [1 0 0];
     
-    if FIGURE == 1
-        plot([Q1_s1(1) Q1_s2(1)], [Q1_s1(2), Q1_s2(2)], 'Color', color, 'LineWidth', 2);
-        plot([Q1_s2(1) Q1_s3(1)], [Q1_s2(2), Q1_s3(2)], 'Color', color, 'LineWidth', 2);
-        plot([Q1_s3(1) Q1_s4(1)], [Q1_s3(2), Q1_s4(2)], 'Color', color, 'LineWidth', 2);
-        plot([Q1_s4(1) Q1_s1(1)], [Q1_s4(2), Q1_s1(2)], 'Color', color, 'LineWidth', 2);
-    end
+%     if FIGURE == 1
+%         plot([Q1_s1(1) Q1_s2(1)], [Q1_s1(2), Q1_s2(2)], 'Color', color, 'LineWidth', 2);
+%         plot([Q1_s2(1) Q1_s3(1)], [Q1_s2(2), Q1_s3(2)], 'Color', color, 'LineWidth', 2);
+%         plot([Q1_s3(1) Q1_s4(1)], [Q1_s3(2), Q1_s4(2)], 'Color', color, 'LineWidth', 2);
+%         plot([Q1_s4(1) Q1_s1(1)], [Q1_s4(2), Q1_s1(2)], 'Color', color, 'LineWidth', 2);
+%     end
     x_size = x_h-x_l+1;
     y_size = y_h-y_l+1;
     
