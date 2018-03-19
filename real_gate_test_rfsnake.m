@@ -4,8 +4,9 @@ global sample_num FIGURE minimun_length color_fitness_threshold
 
 dir_name = 'basement';
 FIGURE = 0;
- [ GT_gate ] = find_corners_manually( dir_name,0,1000 );
- %load('2018_2_2_ground_truth_gate_selection');
+% [ GT_gate ] = find_corners_manually( dir_name,0,1000 );
+ load('3_19_GT_gate');
+% load('GT_basement');
 %check_accuracy_of_manually_detection(GT_gate,dir_name,0,1000);
 
 %check_accuracy_of_manually_detection(GT,dir_name,n,m)
@@ -28,8 +29,8 @@ for i = n:m
     i
     %minimun_length = (i-1)*5;
     minimun_length = 35;
-    color_fitness_threshold = (i-1)*0.05;
-    %color_fitness_threshold = 0.7;
+    %color_fitness_threshold = (i-1)*0.05;
+    color_fitness_threshold = 0.7;
     sample_num = 1000;
     p = 1;
     while p <= max_iter

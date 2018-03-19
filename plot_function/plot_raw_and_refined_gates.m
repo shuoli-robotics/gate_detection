@@ -16,7 +16,7 @@ end
 
 linewidth = 2;
 color = 'b';
-figure_num = 2;
+figure_num = figure_num + 1;
 figure(figure_num)
 RGB = imread(file_name);
 RGB = double(RGB) ./ 255;

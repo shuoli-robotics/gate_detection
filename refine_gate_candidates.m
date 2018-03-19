@@ -1,7 +1,7 @@
 function [refined_gate_candidates,gate_candidates_color_fitness] = refine_gate_candidates(gate_candidates_raw)
 global color_fitness_threshold
 
-dir_name = 'pic_cyberzoo';
+dir_name = 'basement';
 
 p = 1;
 
@@ -20,6 +20,10 @@ for i = 0:1000
     if ~exist(file_name, 'file')
         continue;
     else
+        RGB = imread([dir_name '/' 'img_' sprintf('%05d',i) '.jpg']);
+        RGB = double(RGB) ./ 255;
+        RGB = imrotate(RGB, 90);
+        [Response,~] = createMask_basement(RGB);
         if ~isempty(gate_candidates_raw{p})
              refined_gate_candidates{p} = group_gate_candidates(gate_candidates_raw{p},THRESH);
              if Color_fitness == 0
@@ -39,24 +43,25 @@ for i = 0:1000
         
         if FIGURE == 1
             plot_raw_and_refined_gates(gate_candidates_raw{p},refined_gate_candidates{p},file_name)
+             close all;
         end
         
         if CF_FIGURE == 1
-%             figure(1)
-%             imagesc(Response);
-%             hold on
+            figure(4)
+            imagesc(Response);
+            title(i);
+            hold on
 %             plot_gates_candidates(refined_gate_candidates{p},'r',1,1);
 %             
 %             figure(2)
 %             imagesc(Response);
 %             hold on
 %             plot_gates_candidates( gate_candidates_color_fitness{p},'r',1,2);
-%             close all;
-%               plot_real_gate_and_candidates(RGB,gate_candidates_raw{p},'r',1,1);
-%               plot_real_gate_and_candidates(RGB,refined_gate_candidates{p},'r',1,2);
-%               plot_real_gate_and_candidates(RGB,gate_candidates_color_fitness{p},'r',1,3);
-%               
-%               close all;
+              plot_real_gate_and_candidates(RGB,gate_candidates_raw{p},'r',1,1);
+              plot_real_gate_and_candidates(RGB,refined_gate_candidates{p},'r',1,2);
+              plot_real_gate_and_candidates(RGB,gate_candidates_color_fitness{p},'r',1,3);
+              
+              close all;
         end
     end
  p = p+1;

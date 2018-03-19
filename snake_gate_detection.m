@@ -1,7 +1,7 @@
 function [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name,n,m)
 
 p = 1;
-FIGURE = 1;
+FIGURE = 0;
 
 for i = n:m
      file_name = [dir_name '/' 'img_' sprintf('%05d',i) '.jpg'];

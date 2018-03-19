@@ -4,7 +4,7 @@ function [y_low, y_high] = snake_up_and_down(x, y, Response)
 x_initial = x;
 y_low = y;
 done = false;
-x_max = 316;
+x_max = 312;
 
    
 

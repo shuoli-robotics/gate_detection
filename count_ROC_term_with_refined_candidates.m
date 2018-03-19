@@ -1,4 +1,4 @@
-function [TP2,TN2,FP2,FN2] = count_ROC_term_with_refined_candidates(GT,RF1,RF2,Raw)
+function [TP1,TN1,FP1,FN1] = count_ROC_term_with_refined_candidates(GT,RF1,RF2,Raw)
 % This function is used to count 4 terms for ROC curve
 
 THRESH = 0.3;

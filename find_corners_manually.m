@@ -10,10 +10,7 @@ function [ GT ] = find_corners_manually( dir_name,n,m )
 GT = zeros(m-n+1,9);
 p = 1;
 
-% ------------------------
-n = 1;
-m = 10;
-% ------------------------
+
 
 for i = n:m
     
@@ -23,11 +20,7 @@ for i = n:m
     end
     RGB = imread(file_name);
     RGB = imrotate(RGB, 90);
-   
-    figure(2)
-    [Response,~] = createMask_basement(RGB);
-     imagesc(Response);
-    
+
     figure(1)
     imshow(RGB);
     title(i);

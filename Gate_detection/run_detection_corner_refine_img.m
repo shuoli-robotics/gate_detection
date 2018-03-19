@@ -16,6 +16,12 @@ SUB_SAMPLING_SNAKE = true;
 
 [Response,~] = createMask_basement(RGB);
 
+% if FIGURE == 1
+%    figure(1)
+%    imshow(RGB);
+%    figure(2)
+%    imagesc(Response);
+% end
 
 if(SUB_SAMPLING_SNAKE)
 
