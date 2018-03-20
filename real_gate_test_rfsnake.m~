@@ -14,13 +14,7 @@ FIGURE = 0;
 %load('2018_2_5_GT_with_SG');
 %[distance] = distribution_of_distance_from_gate(GT_gate);
 n = 1;
-m = 1;
-
-for i = 1:11
-   ROC(i).TP = 0;
-   ROC(i).FP = 0;
-   ROC(i).FN = 0;
-end
+m = 10;
 
 TP_rate_mean = zeros(m-n+1,1);
 FP_rate_mean = zeros(m-n+1,1);
@@ -36,22 +30,30 @@ for i = n:m
     minimun_length = 35;
     color_fitness_threshold = 0.7;
     sample_num = 1000;
-    [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name,0,1000);
-
-    [refined_gate_candidates,refined_gate_candidates_cf] = refine_gate_candidates(gates_candidate_corners);
-    
-    [ROC] = count_ROC_term_with_refined_candidates(GT_gate,refined_gate_candidates_cf,ROC);
-    
+    p = 1;
+        [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name,0,1000);
+        %
+        %  load('2018_3_8_raw_detection');
+        % %
+        [refined_gate_candidates,refined_gate_candidates_cf] = refine_gate_candidates(gates_candidate_corners);
+        [TP,TN,FP,FN] = count_ROC_term_with_refined_candidates(GT_gate,refined_gate_candidates,...
+            refined_gate_candidates_cf,gates_candidate_corners);
+        ROC_statistic{i}(p,1) = TP;
+        ROC_statistic{i}(p,2) = TN;
+        ROC_statistic{i}(p,3) = FP;
+        ROC_statistic{i}(p,4) = FN;
+        ROC_statistic{i}(p,5) = TP/(TP + FN);
+        ROC_statistic{i}(p,6) = FP/(FP + TN);
+        p = p+1;
+   
 end
 
 
 figure(10)
 grid on
-for i = 1:size(ROC,2)
-   x(i) = 0.02*i;
-   TPR(i) = ROC(i).TP/(ROC(i).TP+ROC(i).FN);
-end
-plot(x,TPR);
-xlabel('distance');
+errorbar(FP_rate_mean,TP_rate_mean,...
+    TP_rate_std,TP_rate_std,FP_rate_std,FP_rate_std,'o')
+
+xlabel('False Positive rate');
 ylabel('True Positive rate');
 temp = 1;

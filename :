@@ -1,0 +1,14 @@
+distance is considered. ROC could be plotted, but not good.
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch distance
+# Changes to be committed:
+#	new file:   calculate_distance_and_group_id.m
+#	modified:   count_ROC_term_with_refined_candidates.m
+#	new file:   count_ROC_term_with_refined_candidates.m~
+#	new file:   distribution_of_distance_from_gate.m
+#	modified:   pathdef.m
+#	modified:   real_gate_test_rfsnake.m
+#	copied:     real_gate_test_rfsnake.m -> real_gate_test_rfsnake.m~
+#

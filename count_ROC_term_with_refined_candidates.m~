@@ -1,4 +1,4 @@
-function [ROC] = count_ROC_term_with_refined_candidates(GT,RF,ROC)
+function [TP2,TN2,FP2,FN2] = count_ROC_term_with_refined_candidates(GT,RF,ROC)
 % This function is used to count 4 terms for ROC curve
 
 THRESH = 0.3;
@@ -38,7 +38,7 @@ for k = 0:1000
                     plot_and_label_candidates(GT(p,2:9),'FN',2,'b');
                 end
             end
-        elseif GT(p,1) == 1 && isempty(RF{p})
+        elseif GT(p,1) == 1 && isempty(RF1{p})
             [group_id,distance] = calculate_distance_and_group_id(GT(p,:));
             ROC(group_id).FN = ROC(group_id).FN + 1;
             if FIGURE == 1
