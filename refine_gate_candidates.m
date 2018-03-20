@@ -8,7 +8,7 @@ p = 1;
 FIGURE = 0;
 CF_FIGURE = 0;
 
-THRESH = 0.2;
+THRESH = 0.01;
 
 Color_fitness = 1;
 cf_thresh = color_fitness_threshold;
