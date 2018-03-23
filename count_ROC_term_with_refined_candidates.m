@@ -37,9 +37,9 @@ for k = 0:1000
             figure(2)
             imshow(RGB);
             hold on
-            figure(3) 
-            imshow(RGB);
-            hold on
+%             figure(3) 
+%             imshow(RGB);
+%             hold on
         end
         
         if GT(p,1) == 1 && ~isempty(RF1{p})
