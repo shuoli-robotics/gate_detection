@@ -20,15 +20,18 @@ TP_rate_mean = zeros(m-n+1,1);
 FP_rate_mean = zeros(m-n+1,1);
 TP_rate_std = zeros(m-n+1,1);
 FP_rate_std = zeros(m-n+1,1);
-
+FP_per_imag_mean = zeros(m-n+1,1);
+FP_per_imag_std = zeros(m-n+1,1);
 ROC_statistic = cell(m-n+1,1);
 
 max_iter = 1;
 
 for i = n:m
     i
+
     %minimun_length = (i-1)*5;
     minimun_length = 5;
+
     %color_fitness_threshold = (i-1)*0.05;
     color_fitness_threshold = 0.7;
     sample_num = 1000;
@@ -47,20 +50,26 @@ for i = n:m
         ROC_statistic{i}(p,4) = FN;
         ROC_statistic{i}(p,5) = TP/(TP + FN);
         ROC_statistic{i}(p,6) = FP/(FP + TN);
+        ROC_statistic{i}(p,7) = FP/ size(refined_gate_candidates,2) ;
         p = p+1;
     end
     TP_rate_mean(i) = mean(ROC_statistic{i}(:,5));
     FP_rate_mean(i) = mean(ROC_statistic{i}(:,6));
     TP_rate_std(i) = std(ROC_statistic{i}(:,5));
     FP_rate_std(i) = std(ROC_statistic{i}(:,6));
+    FP_per_imag_mean(i) = mean(ROC_statistic{i}(:,7));
+    FP_per_imag_std(i) = std(ROC_statistic{i}(:,7));
 end
 
 
 figure(10)
 grid on
-errorbar(FP_rate_mean,TP_rate_mean,...
-    TP_rate_std,TP_rate_std,FP_rate_std,FP_rate_std,'o')
+% errorbar(FP_rate_mean,TP_rate_mean,...
+%     TP_rate_std,TP_rate_std,FP_rate_std,FP_rate_std,'o')
+errorbar(FP_per_imag_mean,TP_rate_mean,...
+    TP_rate_std,TP_rate_std,FP_per_imag_std,FP_per_imag_std,'o')
 
-xlabel('False Positive rate');
+
+xlabel('# FPs/image');
 ylabel('True Positive rate');
 temp = 1;
