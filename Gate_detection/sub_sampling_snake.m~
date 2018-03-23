@@ -96,17 +96,11 @@ for s = 1:MAX_SAMPLES
                       ss = [ss; sz/2];
                   end
               elseif (szx1 > min_pixel_size) && (szx2 < min_pixel_size)
-                  x = (x_high1 + x_low1) / 2;
-                  sz = max([sz, szx1]);%(szx1 + sz) / 2;
-                  xs = [xs; x];
-                  ys = [ys; y];
-                  ss = [ss; sz/2];
-              elseif (szx1 < min_pixel_size) && (szx2 > min_pixel_size)
-                  x = (x_high2 + x_low2) / 2;
-                  sz = max([szx2, sz]);%(szx2 + sz) / 2;
-                  xs = [xs; x];
-                  ys = [ys; y];
-                  ss = [ss; sz/2];
+                   x = (x_high1 + x_low1) / 2;
+                      sz = max([sz, szx1]);%(szx1 + sz) / 2;
+                      xs = [xs; x];
+                      ys = [ys; y];
+                      ss = [ss; sz/2];
               end
 
         end

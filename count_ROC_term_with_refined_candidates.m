@@ -2,7 +2,7 @@ function [TP1,TN1,FP1,FN1] = count_ROC_term_with_refined_candidates(GT,RF1,RF2,R
 % This function is used to count 4 terms for ROC curve
 
 THRESH = 0.3;
-FIGURE = 1;
+FIGURE = 0;
 color = 'r';
 p = 1;
 TP1 = 0;
