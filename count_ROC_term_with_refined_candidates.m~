@@ -48,7 +48,6 @@ for k = 0:1000
                 if is_two_polygon_similar(GT(p,2:9),RF1{p}(j,:),THRESH)
                     if flag_already_TP == 0
                         TP1 = TP1+1;
-                        TP_per_image = TP_per_image + 1;
                         flag_already_TP = 1;
                     end
                     if FIGURE == 1
@@ -56,7 +55,6 @@ for k = 0:1000
                     end
                 else
                     FP1 = FP1 + 1;
-                    FP_per_image = FP_per_image + 1;
                     if FIGURE == 1
                         plot_and_label_candidates(RF1{p}(j,:),'FP',2,color)
                     end
@@ -64,35 +62,27 @@ for k = 0:1000
             end
             if  flag_already_TP == 0
                 FN1 = FN1 + 1;
-                FN_per_image = FN_per_image + 1;
                 if FIGURE == 1
                     plot_and_label_candidates(GT(p,2:9),'FN',2,'b');
                 end
             end
         elseif GT(p,1) == 1 && isempty(RF1{p})
             FN1 = FN1 + 1;
-             FN_per_image = FN_per_image + 1;
             if FIGURE == 1
                 plot_and_label_candidates(zeros(1,8),'FN',2,color)
             end
         elseif GT(p,1) == 0 && ~isempty(RF1{p})
             for j = 1:size(RF1{p},1)
                 FP1 = FP1 + 1;
-                FP_per_image = FP_per_image + 1;
                 if FIGURE == 1
                     plot_and_label_candidates(RF1{p}(j,:),'FP',2,color)
                 end
             end
         elseif GT(p,1) == 0 && isempty(RF1{p})
             TN1 = TN1 + 1;
-             TN_per_image =  TN_per_image + 1;
             if FIGURE == 1
                 plot_and_label_candidates(zeros(1,8),'TN',2,color)
             end
-        end
-        
-        if FIGURE == 1
-           label_ROC_term(TP_per_image,TN_per_image,FP_per_image,FN_per_image,2) ;
         end
         
         if GT(p,1) == 1 && ~isempty(RF2{p})
@@ -152,7 +142,7 @@ function [] = plot_and_label_candidates(coor,label,figure_num,color)
 linewidth = 1;
 %color = 'r';
 figure(figure_num)
-hold on
+
 [x_center,y_center] = polyxpoly([coor(1) coor(3)],[coor(5) coor(7)], ...
     [coor(2) coor(4)],[coor(6) coor(8)]);
 
