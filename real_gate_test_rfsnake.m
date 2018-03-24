@@ -24,7 +24,7 @@ FP_per_imag_mean = zeros(m-n+1,1);
 FP_per_imag_std = zeros(m-n+1,1);
 ROC_statistic = cell(m-n+1,1);
 
-max_iter = 1;
+max_iter = 10;
 
 for i = n:m
     i
