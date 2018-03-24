@@ -24,16 +24,16 @@ FP_per_imag_mean = zeros(m-n+1,1);
 FP_per_imag_std = zeros(m-n+1,1);
 ROC_statistic = cell(m-n+1,1);
 
-max_iter = 1;
+max_iter = 10;
 
 for i = n:m
     i
 
     %minimun_length = (i-1)*5;
-    minimun_length = 5;
+    minimun_length = 25;
 
-    %color_fitness_threshold = (i-1)*0.05;
-    color_fitness_threshold = 0.7;
+    color_fitness_threshold = (i-1)*0.05;
+%     color_fitness_threshold = 0.7;
     sample_num = 1000;
     p = 1;
     while p <= max_iter
