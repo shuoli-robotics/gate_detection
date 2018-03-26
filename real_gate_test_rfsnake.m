@@ -61,13 +61,13 @@ max_iter = 10;
 %     FP_per_imag_std(i) = std(ROC_statistic{i}(:,7));
 % end
 
-load('3_24_desktop');
-% load('3_24_laptop');
+% load('3_24_desktop');
+load('3_24_laptop');
 
 figure(10)
 hAx=axes;
- hAx.XScale='log';
-xlim([10^-2 20]);
+%  hAx.XScale='log';
+% xlim([10^-2 20]);
 hold all
 % errorbar(FP_rate_mean,TP_rate_mean,...
 %     TP_rate_std,TP_rate_std,FP_rate_std,FP_rate_std,'o')
