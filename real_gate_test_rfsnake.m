@@ -59,8 +59,10 @@ for i = n:m
 %     FP_per_imag_std(i) = std(ROC_statistic{i}(:,7));
 end
 
-%  load('3_24_desktop');
- load('3_24_laptop');
+
+% load('3_24_desktop');
+load('3_24_laptop');
+
 
 figure(10)
 hAx=axes;
