@@ -1,0 +1,1 @@
+'4_16_cyberzoo_dis' is manually labelled gates data. This data aims to find a map between gate area and distance
