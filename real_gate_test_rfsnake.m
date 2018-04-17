@@ -27,30 +27,30 @@ ROC_statistic = cell(m-n+1,1);
 max_iter = 10;
 
 for i = n:m
-    i
-
 %     minimun_length = (i-1)*5;
-%     %minimun_length = 25;
+     minimun_length = 25;
 % 
 % %     color_fitness_threshold = (i-1)*0.05;
-%     color_fitness_threshold = 0.7;
-%     sample_num = 1000;
-%     p = 1;
-%     while p <= max_iter
+     color_fitness_threshold = 0.7;
+     sample_num = 1000;
+    p = 1;
+    while p <= max_iter
 %         [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name,0,1000);
 %         [refined_gate_candidates,refined_gate_candidates_cf] = refine_gate_candidates(gates_candidate_corners);
-%         [TP,TN,FP,FN] = count_ROC_term_with_refined_candidates(GT_gate,refined_gate_candidates,...
-%             refined_gate_candidates_cf,gates_candidate_corners);
-% %         [TP,TN,FP,FN] = count_ROC_with_onboard_detection_algorithm(detected_gate,GT_gate);
-%         ROC_statistic{i}(p,1) = TP;
-%         ROC_statistic{i}(p,2) = TN;
-%         ROC_statistic{i}(p,3) = FP;
-%         ROC_statistic{i}(p,4) = FN;
-%         ROC_statistic{i}(p,5) = TP/(TP + FN);
-%         ROC_statistic{i}(p,6) = FP/(FP + TN);
-%         ROC_statistic{i}(p,7) = FP/ size(GT_gate,1) ;
-%         p = p+1;
-%     end
+%         load('4_17_temp');
+%          count_ROC_term_with_distance(GT_gate,refined_gate_candidates_cf);
+        [TP,TN,FP,FN] = count_ROC_term_with_refined_candidates(GT_gate,refined_gate_candidates,...
+            refined_gate_candidates_cf,gates_candidate_corners);
+%         [TP,TN,FP,FN] = count_ROC_with_onboard_detection_algorithm(detected_gate,GT_gate);
+        ROC_statistic{i}(p,1) = TP;
+        ROC_statistic{i}(p,2) = TN;
+        ROC_statistic{i}(p,3) = FP;
+        ROC_statistic{i}(p,4) = FN;
+        ROC_statistic{i}(p,5) = TP/(TP + FN);
+        ROC_statistic{i}(p,6) = FP/(FP + TN);
+        ROC_statistic{i}(p,7) = FP/ size(GT_gate,1) ;
+        p = p+1;
+    end
 %     TP_rate_mean(i) = mean(ROC_statistic{i}(:,5));
 %     FP_rate_mean(i) = mean(ROC_statistic{i}(:,6));
 %     TP_rate_std(i) = std(ROC_statistic{i}(:,5));

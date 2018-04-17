@@ -1,0 +1,88 @@
+function [] = count_ROC_term_with_distance(GT,RF)
+% With labeled GT and snake gate detection result PF2, we want to check
+% the relation between the ROC term and distance to the gate. 
+
+dir_name = 'basement';
+p = 1;
+THRESH = 0.3;
+% the ROC result is divided into 6 groups: 0-2 m
+%                                          2-3 m
+%                                          3-4 m
+%                                          4-5 m
+%                                          5-6 m
+%                                           >6 m
+
+for i = 1:6
+   ROC(i).TP = 0;
+   ROC(i).FN = 0;
+end
+
+
+for k = 0:1000
+    file_name = [dir_name '/' 'img_' sprintf('%05d',k) '.jpg'];
+    if ~exist(file_name, 'file')
+        continue;
+    else
+        if GT(p,1) == 1
+            % find distance to the gate and the group id
+            [~,group_id]= distance_to_gate(GT(p,2:9));
+            % count ROC term
+            if isempty(RF{p})
+               ROC(group_id).FN = ROC(group_id).FN + 1;
+            else
+               flag_TP = 0;
+               for j = 1:size(RF{p},1) 
+                  if is_two_polygon_similar(GT(p,2:9),RF{p}(j,:),THRESH) && flag_TP == 0
+                     ROC(group_id).TP =  ROC(group_id).TP + 1;
+                     flag_TP = 1;
+                  end
+                  if (j == size(RF{p},1) && flag_TP == 0)
+                      ROC(group_id).FN = ROC(group_id).FN + 1;
+                  end
+               end
+            end
+                
+        end
+        
+        p = p+1;
+    end
+    
+end
+
+TPR = zeros(1,6);
+for i = 1:6
+   TPR(i) =  ROC(i).TP/(ROC(i).TP+ROC(i).FN);
+end
+
+figure(1)
+plot(TPR,'*');
+xlabel('')
+names = {'<2m'; '2m-3m'; '3m-4m'; '4m-5m'; '5m-6m';'>6m'};
+set(gca,'xtick',[1:6],'xticklabel',names);
+end
+
+
+
+function [dis,id] = distance_to_gate(GT_coor)
+% This function maps area of the gate to the distance to the gate
+% and return the group id of the gate
+
+area = polyarea(GT_coor(1:4),GT_coor(5:8));
+p = [-1.67e-18 4.17e-14 -3.97e-10 1.86e-06 -0.0048 8.46];
+dis = polyval(p,area);
+
+if dis < 2
+    id = 1;
+elseif dis < 3
+    id = 2;
+elseif dis < 4
+    id = 3;
+elseif dis < 5
+    id = 4;
+elseif dis < 6
+    id = 5;
+else
+    id = 6;
+end
+
+end
