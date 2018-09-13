@@ -117,7 +117,6 @@ for s = 1:MAX_SAMPLES
 end
 
 n_gates = length(xs);
-fprintf('%d initial gates found\n', n_gates);
 
 for i = 1:n_gates
     Q1 =  [xs(i)-ss(i) ys(i)+ss(i)];

@@ -10,6 +10,11 @@ n_coordinates = 8;
 n_detection = 1;
 size_gate_vector = n_detection + n_coordinates;
 
+% If true, we compare and select gates based on the initial square
+% detections:
+EVALUATE_INITIAL_GATES = true;
+ALLOW_MULTIPLE_GATES = true;
+
 % read image
 RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
 RGB = double(RGB) ./ 255;
@@ -33,68 +38,89 @@ if n_gates < 1
     gates_candidate_corners = [];
     return;
 end
+fprintf('%d initial gates found\n', n_gates);
 
-% refine corners of all gates found
-gates_candidate_corners = zeros(n_gates, n_coordinates);
-for i = 1:n_gates
-    Q1 = [x(i)-s(i); y(i)-s(i)];
-    Q2 = [x(i)+s(i); y(i)-s(i)];
-    Q3 = [x(i)+s(i); y(i)+s(i)];
-    Q4 = [x(i)-s(i); y(i)+s(i)];
+if(~EVALUATE_INITIAL_GATES)
+    % refine corners of all gates found
+    gates_candidate_corners = zeros(n_gates, n_coordinates);
+    for i = 1:n_gates
+        
+        [Q1, Q2, Q3, Q4] = get_corners_from_initial_detection(x(i), y(i), s(i));
+        
+        Q_r1 = refine_corner(Q1,s(i),Response,0.5,graphics);
+        Q_r2 = refine_corner(Q2,s(i),Response,0.5,graphics);
+        Q_r3 = refine_corner(Q3,s(i),Response,0.5,graphics);
+        Q_r4 = refine_corner(Q4,s(i),Response,0.5,graphics);
+        
+        gates_candidate_corners(i,1) = Q_r1(1);
+        gates_candidate_corners(i,2) = Q_r2(1);
+        gates_candidate_corners(i,3) = Q_r3(1);
+        gates_candidate_corners(i,4) = Q_r4(1);
+        gates_candidate_corners(i,5) = Q_r1(2);
+        gates_candidate_corners(i,6) = Q_r2(2);
+        gates_candidate_corners(i,7) = Q_r3(2);
+        gates_candidate_corners(i,8) = Q_r4(2);
+    end
+else
     
-    Q_r1 = refine_corner(Q1,s(i),Response,0.5,graphics);
-    Q_r2 = refine_corner(Q2,s(i),Response,0.5,graphics);
-    Q_r3 = refine_corner(Q3,s(i),Response,0.5,graphics);
-    Q_r4 = refine_corner(Q4,s(i),Response,0.5,graphics);
+    % check fitness of all gates and select the best one:
+    STICK = false;
+    cf = zeros(1,n_gates);
+    for g = 1:n_gates
+        cf(g) = get_color_fitness([x(g), y(g), s(g)], Response, STICK, shape);
+    end
     
-    gates_candidate_corners(i,1) = Q_r1(1);
-    gates_candidate_corners(i,2) = Q_r2(1);
-    gates_candidate_corners(i,3) = Q_r3(1);
-    gates_candidate_corners(i,4) = Q_r4(1);
-    gates_candidate_corners(i,5) = Q_r1(2);
-    gates_candidate_corners(i,6) = Q_r2(2);
-    gates_candidate_corners(i,7) = Q_r3(2);
-    gates_candidate_corners(i,8) = Q_r4(2);    
+    if(ALLOW_MULTIPLE_GATES)
+        % add the gates to a final list:
+        [Q1, Q2, Q3, Q4] = get_corners_from_initial_detection(x(1), y(1), s(1))
+        box1 = get_box_from_corners(Q1, Q2, Q3, Q4);
+        boxes = [box1];
+        indices = [1];
+        iou_threshold_same = 0.7;
+        for g = 2:n_gates
+            [Q1, Q2, Q3, Q4] = get_corners_from_initial_detection(x(g), y(g), s(g));
+            box_gate = get_box_from_corners(Q1, Q2, Q3, Q4);
+            % go over the existing gates to see whether to add this gate:
+            new_gate = true;
+            for i = 1:size(boxes,1)
+                iou = intersection_over_union(box_gate, boxes(i,:));
+                if(iou > iou_threshold_same)
+                    new_gate = false;
+                    if(cf(g) > cf(indices(i)))
+                        % gate g is better than the current one in the list:
+                        boxes(i,:) = box_gate;
+                        indices(i) = g;
+                    end
+                end
+            end
+            % if a new gate, add it:
+            if(new_gate)
+                boxes = [boxes; box_gate];
+                indices(length(gates)+1) = g;
+            end
+        end
+        plot_gates_candidates(boxes,'green',2);
+    else
+        if(n_gates >= 1)
+            [v,i] = max(cf);
+            x = x(i); y = y(i); s = s(i);
+            n_gates = length(x);
+        end
+        
+        Q1 = [x-s; y-s];
+        Q2 = [x+s; y-s];
+        Q3 = [x+s; y+s];
+        Q4 = [x-s; y+s];
+        
+        %sub corners
+        Q_r1 = refine_corner(Q1,s,Response,0.4,graphics);
+        Q_r2 = refine_corner(Q2,s,Response,0.4,graphics);
+        Q_r3 = refine_corner(Q3,s,Response,0.4,graphics);
+        Q_r4 = refine_corner(Q4,s,Response,0.4,graphics);
+        corners = [1 Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
+    end
 end
-
-%---------------------------------------------------------------------
-
-
-% check fitness of all gates and select the best one:
-STICK = false;
-cf = zeros(1,n_gates);
-for g = 1:n_gates
-    cf(g) = get_color_fitness([x(g), y(g), s(g)], Response, STICK, shape);
 end
-if(n_gates >= 1)
-    [v,i] = max(cf);
-    x = x(i); y = y(i); s = s(i);
-    n_gates = length(x);
-end
-
-Q1 = [x-s; y-s];
-Q2 = [x+s; y-s];
-Q3 = [x+s; y+s];
-Q4 = [x-s; y+s];
-
-
-
-color = [0 1 0];
-%sub corners
-Q_r1 = refine_corner(Q1,s,Response,0.4,graphics);
-Q_r2 = refine_corner(Q2,s,Response,0.4,graphics);
-Q_r3 = refine_corner(Q3,s,Response,0.4,graphics);
-Q_r4 = refine_corner(Q4,s,Response,0.4,graphics);
-
-%     gate_corners_x = [Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1)];
-%     gate_corners_y = [Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
-
-color = [1 0 0];
-
-corners = [1 Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
-end
-
-
 
 function [refined_corner] = refine_corner(corner,size,Response,s_factor,graphics)
 
@@ -172,7 +198,6 @@ refined_corner = [best_x_loc,best_y_loc];
 %     plot([Q1_s4(1) Q1_s1(1)], [Q1_s4(2), Q1_s1(2)], 'Color', color, 'LineWidth', 2);
 end
 
-
 function [x, y] = check_coordinate(x, y, W, H)
 % function [x, y] = check_coordinate(x, y, W, H)
 
@@ -181,11 +206,3 @@ x = min([W,x]);
 y = max([1,y]);
 y = min([H,y]);
 end
-
-
-
-
-
-
-
-

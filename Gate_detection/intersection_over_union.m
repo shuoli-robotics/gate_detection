@@ -4,10 +4,10 @@ function iou = intersection_over_union(box1, box2)
 % box = [x1, x2, x3, x4, y1, y2, y3, y4]
 %
 % Where the indices indicate the following corners:
-% Q1 = [x-s; y-s];
-% Q2 = [x+s; y-s];
-% Q3 = [x+s; y+s];
-% Q4 = [x-s; y+s];
+% Q1 = [x1, y1] = [x-s; y-s];
+% Q2 = [x2, y2] = [x+s; y-s];
+% Q3 = [x3, y3] = [x+s; y+s];
+% Q4 = [x4, y4] = [x-s; y+s];
 
 % calculate the intersection:
 is = intersection(box1, box2);
@@ -30,8 +30,8 @@ end
 function is = intersection(box1, box2)
 % function is = intersection(box1, box2)
 
-width = overlap([box1_x_min, box1_x_max], [box2_x_min, box2_x_max]);
-height = overlap([box1_y_min, box1_y_max], [box2_y_min, box2_y_max]);
+width = overlap([box1(1), box1(2)], [box2(1), box2(2)]);
+height = overlap([box1(5), box1(7)], [box2(5), box2(7)]);
 
 is = width * height;
 
