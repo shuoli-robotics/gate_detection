@@ -96,10 +96,53 @@ else
             % if a new gate, add it:
             if(new_gate)
                 boxes = [boxes; box_gate];
-                indices(length(gates)+1) = g;
+                indices(size(boxes,1)) = g;
             end
         end
+        
+        % plot all remaining gate detections:
         plot_gates_candidates(boxes,'green',2);
+        
+        % TODO: return multiple gates. This has to be afforded for in
+        % snake_gate_detection.m
+        n_gates = size(boxes, 1);
+        gates_candidate_corners = zeros(n_gates, n_coordinates);
+        for i = 1:n_gates
+            
+            [Q1, Q2, Q3, Q4] = get_corners_from_initial_detection(x(indices(i)), y(indices(i)), s(indices(i)));
+            
+            Q_r1 = refine_corner(Q1,s(indices(i)),Response,0.5,graphics);
+            Q_r2 = refine_corner(Q2,s(indices(i)),Response,0.5,graphics);
+            Q_r3 = refine_corner(Q3,s(indices(i)),Response,0.5,graphics);
+            Q_r4 = refine_corner(Q4,s(indices(i)),Response,0.5,graphics);
+            
+            gates_candidate_corners(i,1) = Q_r1(1);
+            gates_candidate_corners(i,2) = Q_r2(1);
+            gates_candidate_corners(i,3) = Q_r3(1);
+            gates_candidate_corners(i,4) = Q_r4(1);
+            gates_candidate_corners(i,5) = Q_r1(2);
+            gates_candidate_corners(i,6) = Q_r2(2);
+            gates_candidate_corners(i,7) = Q_r3(2);
+            gates_candidate_corners(i,8) = Q_r4(2);
+        end
+        
+        % single best gate:
+        x = x(1);
+        y = y(1);
+        s = s(1);
+        
+        Q1 = [x-s; y-s];
+        Q2 = [x+s; y-s];
+        Q3 = [x+s; y+s];
+        Q4 = [x-s; y+s];
+        
+        %sub corners
+        Q_r1 = refine_corner(Q1,s,Response,0.4,graphics);
+        Q_r2 = refine_corner(Q2,s,Response,0.4,graphics);
+        Q_r3 = refine_corner(Q3,s,Response,0.4,graphics);
+        Q_r4 = refine_corner(Q4,s,Response,0.4,graphics);
+        corners = [1 Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
+        
     else
         if(n_gates >= 1)
             [v,i] = max(cf);
