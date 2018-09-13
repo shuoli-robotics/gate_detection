@@ -41,11 +41,11 @@ function ol = overlap(interval_1, interval_2)
 % function ol = overlap(interval_1, interval_2)
 
 if(interval_2(1) < interval_1(1))
-   if(interval_2(2) < interval_1(1))
-       ol = 0;
-   else
-       ol = min([interval_1(2), interval_2(2)]) - interval_1(1);
-   end
+    if(interval_2(2) < interval_1(1))
+        ol = 0;
+    else
+        ol = min([interval_1(2), interval_2(2)]) - interval_1(1);
+    end
 else
     if(interval_1(2) < interval_2(1))
         ol = 0;

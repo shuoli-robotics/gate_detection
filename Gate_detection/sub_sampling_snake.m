@@ -1,5 +1,5 @@
-function [xs,ys,ss,n_gates] = sub_sampling_snake(Response)
-% function [xs,ys,ss,n_gates] = sub_sampling_snake(Response)
+function [xs,ys,ss,n_gates] = sub_sampling_snake(Response, sample_num, minimum_length, graphics)
+% function [xs,ys,ss,n_gates] = sub_sampling_snake(Response, sample_num, minimum_length, graphics)
 %
 % Two phases:
 % 1) take random samples
@@ -9,23 +9,27 @@ function [xs,ys,ss,n_gates] = sub_sampling_snake(Response)
 %    (b) left and right. If long enough test two hypotheses with color
 %    fitness.
 
-global sample_num FIGURE minimun_length
+if(~exist('sample_num', 'var') || isempty(sample_num))
+    sample_num = 5000;
+end
+if(~exist('minimum_length', 'var') || isempty(minimum_length))
+    minimum_length = 30;
+end
+if(~exist('graphics', 'var') || isempty(graphics))
+    graphics = true;
+end
 
-SQUARE = 1;
-
-MAX_SAMPLES = sample_num; %5000
+MAX_SAMPLES = sample_num; 
 W = size(Response,2);
 H = size(Response,1);
 xs = []; ys = []; ss = [];
-min_pixel_size = minimun_length;
+min_pixel_size = minimum_length;
 %min_pixel_size = 25;
 
-% if(graphics)
-%     figure();
-%     imagesc(Response);
-%     axis([90 210 20 130])
-%     hold on;
-% end
+if(graphics)
+    imagesc(Response);
+    hold on;
+end
 
 for s = 1:MAX_SAMPLES
     
@@ -42,10 +46,9 @@ for s = 1:MAX_SAMPLES
         
 %         if(graphics)
 %             if(sz < min_pixel_size) % || y_high < size(Response,1)/2)
-%                % plot([x, x], [y_low, y_high], 'Color', 'red');
+%                 plot([x, x], [y_low, y_high], 'Color', 'red');
 %             else
-% %                 plot([x, x], [y_low, y_high], 'Color', 'green', 'LineWidth', 1);
-%                   plot([x, x], [y_low, y_high], 'Color', 'red', 'LineWidth', 1);
+%                 % plot([x, x], [y_low, y_high], 'Color', 'green', 'LineWidth', 1);
 %             end
 %         end
         % check if the vertical stretch is long enough:
@@ -55,7 +58,7 @@ for s = 1:MAX_SAMPLES
             [x_low2, x_high2] = snake_left_and_right(x, y_high, Response);
             szx1 = x_high1-x_low1;
             szx2 = x_high2-x_low2;
-%             if(1&&graphics)
+%             if(graphics)
 %                 if(szx1 < min_pixel_size) % || y_high < size(Response,1)/2)
 %                     plot([x_low1, x_high1], [y_low, y_low], 'Color', 'red');
 %                 else
@@ -114,6 +117,7 @@ for s = 1:MAX_SAMPLES
 end
 
 n_gates = length(xs);
+fprintf('%d initial gates found\n', n_gates);
 
 for i = 1:n_gates
     Q1 =  [xs(i)-ss(i) ys(i)+ss(i)];
@@ -121,8 +125,7 @@ for i = 1:n_gates
     Q3 =  [xs(i)+ss(i) ys(i)-ss(i)];
     Q4 =  [xs(i)-ss(i) ys(i)-ss(i)];
     
-    if FIGURE == 1
-        figure(1)
+    if(graphics)
         plot([Q1(1) Q2(1)],[Q1(2) Q2(2)],'Color','r');
         plot([Q2(1) Q3(1)],[Q2(2) Q3(2)],'Color','r');
         plot([Q3(1) Q4(1)],[Q3(2) Q4(2)],'Color','r');

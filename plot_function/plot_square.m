@@ -1,5 +1,9 @@
 function [] = plot_square(coor,color,linewidth,figure_num)
-figure(figure_num)
+% function [] = plot_square(coor,color,linewidth,figure_num)
+
+if(exist('figure_num', 'var') && ~isempty(figure_num))
+    figure(figure_num)
+end
 hold on
 plot([coor(1) coor(2)],[coor(5) coor(6)],color,'LineWidth',linewidth);
 plot([coor(2) coor(3)],[coor(6) coor(7)],color,'LineWidth',linewidth);
