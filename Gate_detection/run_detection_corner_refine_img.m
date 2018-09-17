@@ -1,5 +1,5 @@
-function [corners,gates_candidate_corners, color_fitnesses] = run_detection_corner_refine_img(dir_name, frame_nr, graphics, ROTATE_90, rotation)
-% function [corners,gates_candidate_corners, color_fitnesses] = run_detection_corner_refine_img(dir_name, frame_nr, graphics, ROTATE_90, rotation)
+function [corners,gates_candidate_corners, color_fitnesses] = run_detection_corner_refine_img(dir_name, frame_nr, graphics, ROTATE_90, rotation, extension)
+% function [corners,gates_candidate_corners, color_fitnesses] = run_detection_corner_refine_img(dir_name, frame_nr, graphics, ROTATE_90, rotation, extension)
 %
 
 % whether to first approximate the detection as a rectangle:
@@ -10,6 +10,9 @@ refinement_ratio = 0.3;
 
 if(~exist('graphics', 'var') || isempty(graphics))
     graphics = true;
+end
+if(~exist('extension', 'var') || isempty(extension))
+    extension = 'jpg';
 end
 
 n_coordinates = 8;
@@ -22,7 +25,7 @@ EVALUATE_INITIAL_GATES = true;
 ALLOW_MULTIPLE_GATES = true;
 
 % read image
-RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
+RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.' extension]);
 RGB = double(RGB) ./ 255;
 if(ROTATE_90)
     RGB = imrotate(RGB, 90);
@@ -31,10 +34,20 @@ if(exist('rotation', 'var') && ~isempty(rotation))
    RGB = imrotate(RGB, rotation); 
 end
 
-HSV = rgb2hsv(RGB);
-% Response = (HSV(:,:,1) < 0.15 | HSV(:,:,1) > 0.9) & HSV(:,:,2) > 0.5 & HSV(:,:,3) > 0.3;
-Response = (HSV(:,:,1) < 0.2 | HSV(:,:,1) > 0.85) & HSV(:,:,2) > 0.2 & HSV(:,:,3) > 0.2;
+filter_YUV = true;
 
+if(filter_YUV)
+    YCbCr = rgb2ycbcr(RGB);
+    Response = YCbCr(:,:,2) < 0.5 & YCbCr(:,:,3) > 0.5 & YCbCr(:,:,1) > 0.2;
+else
+    HSV = rgb2hsv(RGB);
+    % more difficult:
+    % Response = (HSV(:,:,1) < 0.15 | HSV(:,:,1) > 0.9) & HSV(:,:,2) > 0.5 & HSV(:,:,3) > 0.3;
+    % easier (e.g., basement):
+    Response = (HSV(:,:,1) < 0.2 | HSV(:,:,1) > 0.85) & HSV(:,:,2) > 0.2 & HSV(:,:,3) > 0.2;
+    % corridor:
+    % Response = (HSV(:,:,1) > 0.03 & HSV(:,:,1) < 0.16) & HSV(:,:,2) > 0.2 & HSV(:,:,3) > 0.1;
+end
 % color filter the image:
 % [Response,~] = createMask_basement(RGB);
 

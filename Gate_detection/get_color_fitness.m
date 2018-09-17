@@ -72,3 +72,28 @@ end
 % ratio of colored points:
 cf = cf / n_points;
 
+% solid?
+n_solid_samples = 100;
+n_interior = 0;
+solid_ratio = 0.2;
+if(SHAPE == POLYGON)
+    x = Q1(1);
+    y = Q1(2);
+    r = Q2(1) - Q1(1);
+end
+for s = 1:n_solid_samples 
+    xx = round(x + rand(1) * 2 * r - r);
+    yy = round(y + rand(1) * 2 * r - r);
+    xx = min([xx, size(Response,2)]);
+    xx = max([1, xx]);
+    yy = min([yy, size(Response,1)]);
+    yy = max([1, yy]);
+    if(Response(yy,xx) == 1)
+        n_interior = n_interior + 1;
+    end
+end
+ratio = n_interior / n_solid_samples;
+% fprintf('ratio = %f\n', ratio);
+if(ratio > solid_ratio)
+    cf = 0;
+end
