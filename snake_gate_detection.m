@@ -4,6 +4,9 @@ function [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name
 % Run snake gate on a directory, from the image with first_im_number to the
 % one of last_im_number.
 
+ROTATE = false; % whether to add a random rotation
+ROTATE_90 = false; % Bebop images have to be rotated 90 degrees
+
 addpath('Gate_detection');
 addpath('plot_function');
 
@@ -17,15 +20,28 @@ for i = first_im_number:last_im_number
     if ~exist(file_name, 'file')
         continue;
     else
-        [detected_gate(p,:),gates_candidate_corners{p}, cf{p}] = run_detection_corner_refine_img(dir_name, i);
+        if(ROTATE)
+           rotation = 30; %rand(1) * 45; 
+           fprintf('rotation = %f\n', rotation);
+        else
+            rotation = [];
+        end
+        [detected_gate(p,:),gates_candidate_corners{p}, cf{p}] = run_detection_corner_refine_img(dir_name, i, graphics, ROTATE_90, rotation);
         if graphics
+            minimal_fitness_for_plotting = 0.0;
             h = figure();
             RGB = imread([dir_name '/' 'img_' sprintf('%05d',i) '.jpg']);
             RGB = double(RGB) ./ 255;
-            RGB = imrotate(RGB, 90);
+            if(ROTATE_90)
+                RGB = imrotate(RGB, 90);
+            end
+            if(ROTATE)
+                RGB = imrotate(RGB, rotation);
+            end
             imshow(RGB);
             if ~isempty(gates_candidate_corners{p})
-                plot_gates_candidates(gates_candidate_corners{p}, [], 1, cf{p});
+                line_width = 3;
+                plot_gates_candidates(gates_candidate_corners{p}, [], line_width, cf{p}, [], minimal_fitness_for_plotting);
             end
             waitforbuttonpress;
             close(h);

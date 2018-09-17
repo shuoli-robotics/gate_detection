@@ -1,5 +1,5 @@
-function [xs,ys,ss,n_gates] = sub_sampling_snake(Response, sample_num, minimum_length, graphics)
-% function [xs,ys,ss,n_gates] = sub_sampling_snake(Response, sample_num, minimum_length, graphics)
+function [xs,ys,ss,n_gates, boxes] = sub_sampling_snake(Response, sample_num, minimum_length, graphics)
+% function [xs,ys,ss,n_gates, boxes] = sub_sampling_snake(Response, sample_num, minimum_length, graphics)
 %
 % Two phases:
 % 1) take random samples
@@ -19,10 +19,12 @@ if(~exist('graphics', 'var') || isempty(graphics))
     graphics = true;
 end
 
+DEBUG = false;
+
 MAX_SAMPLES = sample_num; 
 W = size(Response,2);
 H = size(Response,1);
-xs = []; ys = []; ss = [];
+xs = []; ys = []; ss = []; boxes = [];
 min_pixel_size = minimum_length;
 %min_pixel_size = 25;
 
@@ -40,7 +42,22 @@ for s = 1:MAX_SAMPLES
     
     if(Response(y,x) > 0 && y > 2 && x > 2 && x < W-2 && y < H-2)
         % only up and down:
-        [y_low, y_high] = snake_up_and_down(x, y, Response);
+        
+        if(DEBUG)
+            Im = zeros(size(Response));
+            % fprintf('Initial: (%d, %d)\n', x, y);
+            [x_low, y_low, x_high, y_high, Im] = snake_up_and_down(x, y, Response, true, Im);
+            
+            h_snake = figure();
+            imagesc(Response + Im);
+            hold on;
+            plot(x,y, 'x','MarkerSize', 10, 'Color', [1 1 1])
+            title('snaking - just up and down')
+            waitforbuttonpress();
+            close(h_snake);
+        else 
+            [x_low, y_low, x_high, y_high] = snake_up_and_down(x, y, Response);
+        end
         sz = (y_high - y_low);
         y = (y_high + y_low) / 2;
         
@@ -54,10 +71,41 @@ for s = 1:MAX_SAMPLES
         % check if the vertical stretch is long enough:
         if(sz > min_pixel_size)
             % snake left and right:
-            [x_low1, x_high1] = snake_left_and_right(x, y_low, Response);
-            [x_low2, x_high2] = snake_left_and_right(x, y_high, Response);
+            if(DEBUG)
+                [x_low1, y_low1, x_high1, y_high1, Im] = snake_left_and_right(x_low, y_low, Response, true, Im);
+                [x_low2, y_low2, x_high2, y_high2, Im] = snake_left_and_right(x_high, y_high, Response, true, Im);
+            else
+                [x_low1, y_low1, x_high1, y_high1] = snake_left_and_right(x_low, y_low, Response);
+                [x_low2, y_low2, x_high2, y_high2] = snake_left_and_right(x_high, y_high, Response);
+            end
+            
             szx1 = x_high1-x_low1;
             szx2 = x_high2-x_low2;
+            
+            
+            if(szx1 > min_pixel_size) || (szx2 > min_pixel_size)
+                Q1 = [x_low1, y_low1];
+                Q2 = [x_high1, y_high1];
+                Q3 = [x_high2, y_high2];
+                Q4 = [x_low2, y_low2];
+                boxes = [boxes; get_box_from_corners(Q1, Q2, Q3, Q4)];
+                
+                if(DEBUG)
+                    h_snake = figure();
+                    imagesc(Response + Im);
+                    hold on;
+                    plot(x_low,y_low, 'x','MarkerSize', 10, 'Color', [1 1 1])
+                    plot(x_high,y_high, 'x','MarkerSize', 10, 'Color', [1 1 1])
+                    plot(Q1(1), Q1(2), 'o', 'MarkerSize', 5, 'Color', [1 0 0]);
+                    plot(Q2(1), Q2(2), 'o', 'MarkerSize', 5, 'Color', [1 0 0]);
+                    plot(Q3(1), Q3(2), 'o', 'MarkerSize', 5, 'Color', [1 0 0]);
+                    plot(Q4(1), Q4(2), 'o', 'MarkerSize', 5, 'Color', [1 0 0]);
+                    plot_square(boxes(end, :), [1 1 1], 1);
+                    title('snaking')
+                    waitforbuttonpress();
+                    close(h_snake);
+                end
+            end
 %             if(graphics)
 %                 if(szx1 < min_pixel_size) % || y_high < size(Response,1)/2)
 %                     plot([x_low1, x_high1], [y_low, y_low], 'Color', 'red');
@@ -119,15 +167,16 @@ end
 n_gates = length(xs);
 
 for i = 1:n_gates
-    Q1 =  [xs(i)-ss(i) ys(i)+ss(i)];
-    Q2 =  [xs(i)+ss(i) ys(i)+ss(i)];
-    Q3 =  [xs(i)+ss(i) ys(i)-ss(i)];
-    Q4 =  [xs(i)-ss(i) ys(i)-ss(i)];
-    
-    if(graphics)
-        plot([Q1(1) Q2(1)],[Q1(2) Q2(2)],'Color','r');
-        plot([Q2(1) Q3(1)],[Q2(2) Q3(2)],'Color','r');
-        plot([Q3(1) Q4(1)],[Q3(2) Q4(2)],'Color','r');
-        plot([Q4(1) Q1(1)],[Q4(2) Q1(2)],'Color','r');
-    end
+     plot_square(boxes(i,:),'r',1);
+%     Q1 =  [xs(i)-ss(i) ys(i)+ss(i)];
+%     Q2 =  [xs(i)+ss(i) ys(i)+ss(i)];
+%     Q3 =  [xs(i)+ss(i) ys(i)-ss(i)];
+%     Q4 =  [xs(i)-ss(i) ys(i)-ss(i)];
+%     
+%     if(graphics)
+%         plot([Q1(1) Q2(1)],[Q1(2) Q2(2)],'Color','r');
+%         plot([Q2(1) Q3(1)],[Q2(2) Q3(2)],'Color','r');
+%         plot([Q3(1) Q4(1)],[Q3(2) Q4(2)],'Color','r');
+%         plot([Q4(1) Q1(1)],[Q4(2) Q1(2)],'Color','r');
+%     end
 end
