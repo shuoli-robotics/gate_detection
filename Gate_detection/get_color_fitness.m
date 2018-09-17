@@ -5,6 +5,7 @@ min_size = 20;
 
 SQUARE = 1;
 CIRCLE = 2;
+POLYGON = 3;
 
 x = genome(1);
 y = genome(2);
@@ -28,11 +29,19 @@ if(SHAPE == CIRCLE)
         end
     end
 else
-    % all corner points:
-    Q1 = [x-r; y-r];
-    Q2 = [x+r; y-r];
-    Q3 = [x+r; y+r];
-    Q4 = [x-r; y+r];
+    if(SHAPE == SQUARE)
+        % all corner points:
+        Q1 = [x-r; y-r];
+        Q2 = [x+r; y-r];
+        Q3 = [x+r; y+r];
+        Q4 = [x-r; y+r];
+    else
+       % genome is now organized as a box:
+       Q1 = [genome(1), genome(5)];
+       Q2 = [genome(2), genome(6)];
+       Q3 = [genome(3), genome(7)];
+       Q4 = [genome(4), genome(8)];
+    end
     
     [s_cf, p] = check_color_fitness_segment(Q1, Q2, Response);
     cf = cf + s_cf;
@@ -63,17 +72,3 @@ end
 % ratio of colored points:
 cf = cf / n_points;
 
-function [s_cf, p] = check_color_fitness_segment(Q1, Q2, Response)
-% function [s_cf, p] = check_color_fitness_segment(Q1, Q2, Response)
-s_cf = 0;
-p = 0;
-for t = 0:0.01:1
-    xx = round(t*Q1(1) + (1-t)*Q2(1));
-    yy = round(t*Q1(2) + (1-t)*Q2(2));
-    if(xx >= 1 && xx <= size(Response, 2) && yy >= 1 && yy <= size(Response, 1))
-        p = p + 1;
-        if(Response(yy,xx) > 0)
-            s_cf = s_cf + 1;
-        end
-    end
-end

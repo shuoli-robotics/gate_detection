@@ -17,7 +17,7 @@ for i = first_im_number:last_im_number
     if ~exist(file_name, 'file')
         continue;
     else
-        [detected_gate(p,:),gates_candidate_corners{p}] = run_detection_corner_refine_img(dir_name, i);
+        [detected_gate(p,:),gates_candidate_corners{p}, cf{p}] = run_detection_corner_refine_img(dir_name, i);
         if graphics
             h = figure();
             RGB = imread([dir_name '/' 'img_' sprintf('%05d',i) '.jpg']);
@@ -25,7 +25,7 @@ for i = first_im_number:last_im_number
             RGB = imrotate(RGB, 90);
             imshow(RGB);
             if ~isempty(gates_candidate_corners{p})
-                plot_gates_candidates(gates_candidate_corners{p},'r',1);
+                plot_gates_candidates(gates_candidate_corners{p}, [], 1, cf{p});
             end
             waitforbuttonpress;
             close(h);

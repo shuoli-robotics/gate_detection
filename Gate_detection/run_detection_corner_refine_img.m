@@ -1,6 +1,8 @@
-function [corners,gates_candidate_corners] = run_detection_corner_refine_img(dir_name, frame_nr, graphics)
-% function [corners,gates_candidate_corners] = run_detection_corner_refine_img(dir_name, frame_nr, graphics)
+function [corners,gates_candidate_corners, color_fitnesses] = run_detection_corner_refine_img(dir_name, frame_nr, graphics)
+% function [corners,gates_candidate_corners, color_fitnesses] = run_detection_corner_refine_img(dir_name, frame_nr, graphics)
 %
+
+color_fitnesses = [];
 
 if(~exist('graphics', 'var') || isempty(graphics))
     graphics = true;
@@ -20,8 +22,11 @@ RGB = imread([dir_name '/' 'img_' sprintf('%05d',frame_nr) '.jpg']);
 RGB = double(RGB) ./ 255;
 RGB = imrotate(RGB, 90);
 
+HSV = rgb2hsv(RGB);
+Response = (HSV(:,:,1) < 0.15 | HSV(:,:,1) > 0.9) & HSV(:,:,2) > 0.5 & HSV(:,:,3) > 0.3;
 % color filter the image:
-[Response,~] = createMask_basement(RGB);
+% [Response,~] = createMask_basement(RGB);
+
 if(graphics)
     figure()
     imshow(RGB);
@@ -31,6 +36,7 @@ end
 
 % perform subsampling to find all candidates:
 SQUARE = 1;
+POLYGON = 3;
 shape = SQUARE;
 [x,y,s,n_gates] = sub_sampling_snake(Response);
 if n_gates < 1
@@ -107,6 +113,7 @@ else
         % snake_gate_detection.m
         n_gates = size(boxes, 1);
         gates_candidate_corners = zeros(n_gates, n_coordinates);
+        color_fitnesses = zeros(n_gates, 1);
         for i = 1:n_gates
             
             [Q1, Q2, Q3, Q4] = get_corners_from_initial_detection(x(indices(i)), y(indices(i)), s(indices(i)));
@@ -124,25 +131,15 @@ else
             gates_candidate_corners(i,6) = Q_r2(2);
             gates_candidate_corners(i,7) = Q_r3(2);
             gates_candidate_corners(i,8) = Q_r4(2);
+            
+            color_fitnesses(i) = get_color_fitness(gates_candidate_corners(i, :), Response, STICK, POLYGON);
         end
         
         % single best gate:
-        x = x(1);
-        y = y(1);
-        s = s(1);
-        
-        Q1 = [x-s; y-s];
-        Q2 = [x+s; y-s];
-        Q3 = [x+s; y+s];
-        Q4 = [x-s; y+s];
-        
-        %sub corners
-        Q_r1 = refine_corner(Q1,s,Response,0.4,graphics);
-        Q_r2 = refine_corner(Q2,s,Response,0.4,graphics);
-        Q_r3 = refine_corner(Q3,s,Response,0.4,graphics);
-        Q_r4 = refine_corner(Q4,s,Response,0.4,graphics);
-        corners = [1 Q_r1(1) Q_r2(1) Q_r3(1) Q_r4(1) Q_r1(2) Q_r2(2) Q_r3(2) Q_r4(2)];
-        
+        if(n_gates >= 1)
+            [v,i] = max(color_fitnesses);
+        end
+        corners = [1 gates_candidate_corners(i,:)];
     else
         if(n_gates >= 1)
             [v,i] = max(cf);
