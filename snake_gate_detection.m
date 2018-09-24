@@ -4,7 +4,7 @@ function [detected_gate,gates_candidate_corners] = snake_gate_detection(dir_name
 % Run snake gate on a directory, from the image with first_im_number to the
 % one of last_im_number.
 
-extension = 'bmp'; % 'jpg'
+extension = 'jpg'; %'bmp'; % 'jpg';
 
 ROTATE = false; % whether to add a random rotation
 ROTATE_90 = false; % Bebop images have to be rotated 90 degrees

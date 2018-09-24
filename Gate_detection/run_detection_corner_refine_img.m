@@ -37,6 +37,7 @@ end
 filter_YUV = 1;
 filter_HSV = 2;
 filter_EDGE = 3;
+filter_GRAY = 4;
 METHOD = filter_HSV;
 
 if(METHOD == filter_YUV)
@@ -50,13 +51,15 @@ elseif(METHOD == filter_HSV)
     Response = (HSV(:,:,1) < 0.2 | HSV(:,:,1) > 0.85) & HSV(:,:,2) > 0.2 & HSV(:,:,3) > 0.2;
     % corridor:
     % Response = (HSV(:,:,1) > 0.03 & HSV(:,:,1) < 0.16) & HSV(:,:,2) > 0.2 & HSV(:,:,3) > 0.1;
-else
+elseif(METHOD == filter_EDGE)
     Gray = rgb2gray(RGB);
     [DX, DY] = gradient(Gray);
     Response = abs(DX) + abs(DY);
     Mask = ones(3,3);
     Response = conv2(Response, Mask, 'same');
     Response = Response > 2 * mean(Response(:));
+else
+    Response = rgb2gray(RGB);
 end
 % color filter the image:
 % [Response,~] = createMask_basement(RGB);
@@ -68,6 +71,11 @@ if(graphics)
     imagesc(Response);
     waitforbuttonpress;
 end
+
+% area_width = 50;
+% border_width = 10;
+% step = 2;
+% test_integral_feature(Response, area_width, border_width, step);
 
 % perform subsampling to find all candidates:
 SQUARE = 1;
@@ -93,7 +101,16 @@ if(~EVALUATE_INITIAL_GATES)
         
         [Q1, Q2, Q3, Q4] = get_corners_from_initial_detection(x(i), y(i), s(i));
         
-        Q_r1 = refine_corner(Q1,s(i),Response,refinement_ratio,graphics);
+        % TODO: make separate refinement for integral image and histogram:
+        %         Q_r1 = refine_corner(Q1,s(i),Response,refinement_ratio,graphics);
+        area_width = 50;
+        border_width = 10;
+        step = 2;
+        TOP_LEFT = 1;
+        corner_type = TOP_LEFT;
+        Q_r1 = refine_corner_IntegralImage(Q1, s(i), Response, refinement_ratio, corner_type, ...
+                                            area_width, border_width, step);
+        
         Q_r2 = refine_corner(Q2,s(i),Response,refinement_ratio,graphics);
         Q_r3 = refine_corner(Q3,s(i),Response,refinement_ratio,graphics);
         Q_r4 = refine_corner(Q4,s(i),Response,refinement_ratio,graphics);
@@ -181,7 +198,16 @@ else
                 [Q1, Q2, Q3, Q4] = get_corners_from_box(final_boxes(i,:));
             end
             
-            Q_r1 = refine_corner(Q1,s(indices(i)),Response,refinement_ratio,graphics);
+            % TODO: make separate refinement for integral image and histogram:
+            area_width = 50;
+            border_width = 10;
+            step = 2;
+            TOP_LEFT = 1;
+            corner_type = TOP_LEFT;
+            Q_r1 = refine_corner_IntegralImage(Q1, s(indices(i)), Response, refinement_ratio, corner_type, ...
+                area_width, border_width, step);
+            % Q_r1 = refine_corner(Q1,s(indices(i)),Response,refinement_ratio,graphics);
+            
             Q_r2 = refine_corner(Q2,s(indices(i)),Response,refinement_ratio,graphics);
             Q_r3 = refine_corner(Q3,s(indices(i)),Response,refinement_ratio,graphics);
             Q_r4 = refine_corner(Q4,s(indices(i)),Response,refinement_ratio,graphics);
