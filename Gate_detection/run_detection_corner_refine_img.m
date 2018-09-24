@@ -34,12 +34,15 @@ if(exist('rotation', 'var') && ~isempty(rotation))
    RGB = imrotate(RGB, rotation); 
 end
 
-filter_YUV = true;
+filter_YUV = 1;
+filter_HSV = 2;
+filter_EDGE = 3;
+METHOD = filter_HSV;
 
-if(filter_YUV)
+if(METHOD == filter_YUV)
     YCbCr = rgb2ycbcr(RGB);
     Response = YCbCr(:,:,2) < 0.5 & YCbCr(:,:,3) > 0.5 & YCbCr(:,:,1) > 0.2;
-else
+elseif(METHOD == filter_HSV)
     HSV = rgb2hsv(RGB);
     % more difficult:
     % Response = (HSV(:,:,1) < 0.15 | HSV(:,:,1) > 0.9) & HSV(:,:,2) > 0.5 & HSV(:,:,3) > 0.3;
@@ -47,6 +50,13 @@ else
     Response = (HSV(:,:,1) < 0.2 | HSV(:,:,1) > 0.85) & HSV(:,:,2) > 0.2 & HSV(:,:,3) > 0.2;
     % corridor:
     % Response = (HSV(:,:,1) > 0.03 & HSV(:,:,1) < 0.16) & HSV(:,:,2) > 0.2 & HSV(:,:,3) > 0.1;
+else
+    Gray = rgb2gray(RGB);
+    [DX, DY] = gradient(Gray);
+    Response = abs(DX) + abs(DY);
+    Mask = ones(3,3);
+    Response = conv2(Response, Mask, 'same');
+    Response = Response > 2 * mean(Response(:));
 end
 % color filter the image:
 % [Response,~] = createMask_basement(RGB);
@@ -56,6 +66,7 @@ if(graphics)
     imshow(RGB);
     figure()
     imagesc(Response);
+    waitforbuttonpress;
 end
 
 % perform subsampling to find all candidates:
