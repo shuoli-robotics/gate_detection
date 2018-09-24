@@ -5,6 +5,9 @@ function [corners,gates_candidate_corners, color_fitnesses] = run_detection_corn
 % whether to first approximate the detection as a rectangle:
 USE_INITIAL_RECTANGLE_BOXES = true;
 
+% whether to refine with a VIOLA_AND_JONES feature:
+VIOLA_AND_JONES_REFINEMENT = true;
+
 color_fitnesses = [];
 refinement_ratio = 0.3;
 
@@ -101,19 +104,34 @@ if(~EVALUATE_INITIAL_GATES)
         
         [Q1, Q2, Q3, Q4] = get_corners_from_initial_detection(x(i), y(i), s(i));
         
-        % TODO: make separate refinement for integral image and histogram:
-        %         Q_r1 = refine_corner(Q1,s(i),Response,refinement_ratio,graphics);
-        area_width = 50;
-        border_width = 10;
-        step = 2;
-        TOP_LEFT = 1;
-        corner_type = TOP_LEFT;
-        Q_r1 = refine_corner_IntegralImage(Q1, s(i), Response, refinement_ratio, corner_type, ...
-                                            area_width, border_width, step);
-        
-        Q_r2 = refine_corner(Q2,s(i),Response,refinement_ratio,graphics);
-        Q_r3 = refine_corner(Q3,s(i),Response,refinement_ratio,graphics);
-        Q_r4 = refine_corner(Q4,s(i),Response,refinement_ratio,graphics);
+        if(VIOLA_AND_JONES_REFINEMENT)
+            area_width = 50;
+            border_width = 10;
+            step = 2;
+            
+            TOP_LEFT = 1;
+            TOP_RIGHT = 2;
+            BOTTOM_LEFT = 3;
+            BOTTOM_RIGHT = 4;
+            
+            corner_type = TOP_LEFT;
+            Q_r1 = refine_corner_IntegralImage(Q1, s(i), Response, refinement_ratio, corner_type, ...
+                area_width, border_width, step);
+            corner_type = TOP_RIGHT;
+            Q_r2 = refine_corner_IntegralImage(Q2, s(i), Response, refinement_ratio, corner_type, ...
+                area_width, border_width, step);
+            corner_type = BOTTOM_RIGHT;
+            Q_r3 = refine_corner_IntegralImage(Q3, s(i), Response, refinement_ratio, corner_type, ...
+                area_width, border_width, step);
+            corner_type = BOTTOM_LEFT;
+            Q_r4 = refine_corner_IntegralImage(Q4, s(i), Response, refinement_ratio, corner_type, ...
+                area_width, border_width, step);
+        else
+            Q_r1 = refine_corner(Q1,s(i),Response,refinement_ratio,graphics);
+            Q_r2 = refine_corner(Q2,s(i),Response,refinement_ratio,graphics);
+            Q_r3 = refine_corner(Q3,s(i),Response,refinement_ratio,graphics);
+            Q_r4 = refine_corner(Q4,s(i),Response,refinement_ratio,graphics);
+        end
         
         gates_candidate_corners(i,1) = Q_r1(1);
         gates_candidate_corners(i,2) = Q_r2(1);
@@ -198,19 +216,33 @@ else
                 [Q1, Q2, Q3, Q4] = get_corners_from_box(final_boxes(i,:));
             end
             
-            % TODO: make separate refinement for integral image and histogram:
-            area_width = 50;
-            border_width = 10;
-            step = 2;
-            TOP_LEFT = 1;
-            corner_type = TOP_LEFT;
-            Q_r1 = refine_corner_IntegralImage(Q1, s(indices(i)), Response, refinement_ratio, corner_type, ...
-                area_width, border_width, step);
-            % Q_r1 = refine_corner(Q1,s(indices(i)),Response,refinement_ratio,graphics);
-            
-            Q_r2 = refine_corner(Q2,s(indices(i)),Response,refinement_ratio,graphics);
-            Q_r3 = refine_corner(Q3,s(indices(i)),Response,refinement_ratio,graphics);
-            Q_r4 = refine_corner(Q4,s(indices(i)),Response,refinement_ratio,graphics);
+            if(VIOLA_AND_JONES_REFINEMENT)
+                area_width = 50;
+                border_width = 10;
+                step = 2;
+                
+                TOP_LEFT = 1;
+                TOP_RIGHT = 2;
+                BOTTOM_LEFT = 3;
+                BOTTOM_RIGHT = 4;
+                corner_type = TOP_LEFT;
+                Q_r1 = refine_corner_IntegralImage(Q1, s(indices(i)), Response, refinement_ratio, corner_type, ...
+                    area_width, border_width, step);
+                corner_type = TOP_RIGHT;
+                Q_r2 = refine_corner_IntegralImage(Q2, s(indices(i)), Response, refinement_ratio, corner_type, ...
+                    area_width, border_width, step);
+                corner_type = BOTTOM_RIGHT;
+                Q_r3 = refine_corner_IntegralImage(Q3, s(indices(i)), Response, refinement_ratio, corner_type, ...
+                    area_width, border_width, step);
+                corner_type = BOTTOM_LEFT;
+                Q_r4 = refine_corner_IntegralImage(Q4, s(indices(i)), Response, refinement_ratio, corner_type, ...
+                    area_width, border_width, step);
+            else
+                Q_r1 = refine_corner(Q1,s(indices(i)),Response,refinement_ratio,graphics);
+                Q_r2 = refine_corner(Q2,s(indices(i)),Response,refinement_ratio,graphics);
+                Q_r3 = refine_corner(Q3,s(indices(i)),Response,refinement_ratio,graphics);
+                Q_r4 = refine_corner(Q4,s(indices(i)),Response,refinement_ratio,graphics);
+            end
             
             gates_candidate_corners(i,1) = Q_r1(1);
             gates_candidate_corners(i,2) = Q_r2(1);

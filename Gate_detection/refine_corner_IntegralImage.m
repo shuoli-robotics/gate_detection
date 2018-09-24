@@ -2,7 +2,11 @@ function [refined_corner] = refine_corner_IntegralImage(corner, sz, Response, s_
 % function [refined_corner] = refine_corner_IntegralImage(corner, sz, Response, s_factor, corner_type, area_width, border_width, step, graphics)
 
 if(~exist('graphics', 'var') || ~isempty(graphics))
-    graphics = true;
+    graphics = false;
+end
+if(~exist('corner_type', 'var') || isempty(corner_type))
+    TOP_LEFT = 1;
+    corner_type = TOP_LEFT;
 end
 
 W = size(Response, 2);
@@ -24,10 +28,6 @@ color = [1 0 0];
 
 II = getIntegralImage(Response);
 
-TOP_LEFT = 1;
-if(~exist('corner_type', 'var') || isempty(corner_type))
-    corner_type = TOP_LEFT;
-end
 
 min_response = 1000000;
 min_x = 0;
